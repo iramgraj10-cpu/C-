@@ -4,12 +4,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpMastery.Domain\CSharpMastery.Domain.csproj" />
     <ProjectReference Include="..\CSharpMastery.Learning\CSharpMastery.Learning.csproj" />
     <ProjectReference Include="..\CSharpMastery.Execution\CSharpMastery.Execution.csproj" />
     <ProjectReference Include="..\CSharpMastery.Content\CSharpMastery.Content.csproj" />
+    <ProjectReference Include="..\CSharpMastery.Persistence\CSharpMastery.Persistence.csproj" />
   </ItemGroup>
 </Project>
