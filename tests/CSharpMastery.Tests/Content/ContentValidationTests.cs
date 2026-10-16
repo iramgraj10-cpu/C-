@@ -216,7 +216,7 @@ public sealed class ContentValidationTests(ITestOutputHelper output)
             var example = InProcessRunner.RunProgram(lesson.WorkedExample.Code);
             if (example.Status != ExecutionStatus.Completed || example.Tests.Single().Failure is not null)
             {
-                failures.Add($"{skill.Id}: el ejemplo resuelto no se ejecuta: {string.Join("; ", example.Errors.Select(e => $"L{e.Line} {e.Message}"))} {example.Tests.FirstOrDefault()?.Failure?.Message}");
+                failures.Add($"{skill.Id}: el ejemplo resuelto no se ejecuta ({example.Status}): {string.Join("; ", example.Errors.Select(e => $"L{e.Line} {e.Message}"))} {example.Tests.FirstOrDefault()?.Failure?.Message}");
             }
             else if (lesson.WorkedExample.ExpectedOutput is { } expected && !OutputComparer.AreEquivalent(expected, example.Tests.Single().Output))
             {

@@ -8,11 +8,7 @@ internal static class Nivel4Module
     public static CurriculumModule Build(ContentRegistry r) => new("n4", 4, "C# moderno y profesional",
         "Excepciones, genéricos, delegados, LINQ, patrones modernos, recursos y serialización.",
         [
-            new Unit("n4.u1", "n4", "Errores y genéricos", "Manejo de excepciones y código genérico.",
-            [
-                Outline.Skill("n4.excepciones", "n4.u1", "Excepciones y manejo de errores", "try, catch, finally, throw y excepciones propias.", Tier.Essential, "n3.clases"),
-                Outline.Skill("n4.genericos", "n4.u1", "Genéricos", "Tipos y métodos con parámetros de tipo y restricciones.", Tier.Intermediate, "n3.abstractas-interfaces"),
-            ]),
+            U01ErroresGenericos.Build(r),
             new Unit("n4.u2", "n4", "Funciones como datos", "Delegados, eventos, lambdas, LINQ e iteradores.",
             [
                 Outline.Skill("n4.delegados", "n4.u2", "Delegados y eventos", "Referencias a métodos y notificaciones.", Tier.Intermediate, "n3.clases"),
