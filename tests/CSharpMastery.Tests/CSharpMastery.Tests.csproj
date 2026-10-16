@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CSharpMastery.Domain\CSharpMastery.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Learning\CSharpMastery.Learning.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Content\CSharpMastery.Content.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Execution\CSharpMastery.Execution.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Persistence\CSharpMastery.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Presentation\CSharpMastery.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\CSharpMastery.Runner\CSharpMastery.Runner.csproj" />
+  </ItemGroup>
+</Project>

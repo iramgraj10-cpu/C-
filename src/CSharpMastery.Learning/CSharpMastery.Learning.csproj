@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpMastery.Domain\CSharpMastery.Domain.csproj" />
+    <ProjectReference Include="..\CSharpMastery.Execution\CSharpMastery.Execution.csproj" />
+  </ItemGroup>
+</Project>

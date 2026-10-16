@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpMastery.Domain\CSharpMastery.Domain.csproj" />
+    <ProjectReference Include="..\CSharpMastery.Learning\CSharpMastery.Learning.csproj" />
+  </ItemGroup>
+</Project>

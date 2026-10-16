@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <NeutralLanguage>es-MX</NeutralLanguage>
+    <Authors>C# Mastery</Authors>
+    <Product>C# Mastery</Product>
+  </PropertyGroup>
+</Project>
