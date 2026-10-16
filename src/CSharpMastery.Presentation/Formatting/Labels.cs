@@ -39,6 +39,7 @@ public static class Labels
         ItemPurpose.Guided => "Ejercicio guiado",
         ItemPurpose.Independent => "Ejercicio sin ayuda",
         ItemPurpose.Transfer => "Aplicación en un contexto nuevo",
+        ItemPurpose.Project => "Hito de proyecto",
         _ => purpose.ToString(),
     };
 

@@ -431,6 +431,7 @@ internal static class U01Metodos
                     P("El tipo antes del nombre (int en Sumar) es el tipo del valor que se devuelve. return termina el método y entrega ese valor."),
                     P("Los tipos simples como int, double o bool se pasan por valor: el método recibe una copia y modificarla no afecta a la variable original."),
                     Warn("Un método que no es void debe terminar con return en todos los caminos posibles; si no, no compila (CS0161)."),
+                    Note("throw new ArgumentOutOfRangeException(nameof(cantidad)) detiene el método e informa que un argumento no es válido. En el Nivel 4 verás cómo capturar estas excepciones con try y catch."),
                     Design("Prefiere métodos que devuelven un resultado a métodos que lo muestran: así puedes reutilizar el cálculo y probarlo."),
                 ],
                 new WorkedExample("Calcular el promedio en un método",

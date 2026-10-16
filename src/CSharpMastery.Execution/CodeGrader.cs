@@ -195,8 +195,9 @@ public static class CodeGrader
             return Fail(message, diff.FormatOnly ? ErrorCategory.OutputFormat : ErrorCategory.WrongLogic, run.Output);
         }
 
+        // Se normalizan los saltos de línea para que un texto armado con AppendLine en Windows (\r\n) sea equivalente.
         var actualValue = (run.ReturnValue ?? "").Trim();
-        if (actualValue == test.Expected.Trim())
+        if (OutputComparer.Normalize(actualValue) == OutputComparer.Normalize(test.Expected.Trim()))
         {
             return Pass();
         }

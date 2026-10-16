@@ -501,6 +501,7 @@ internal static class U01Clases
                         """, "validación y propiedad calculada"),
                     P("La sintaxis new Cuenta { Titular = \"Ana\" } es un inicializador de objeto: asigna propiedades justo después de crear el objeto."),
                     Tip("Convención: propiedades y métodos en PascalCase; campos privados con guion bajo (_saldo)."),
+                    Note("En el ejemplo siguiente aparece try { … } catch (Tipo) { … }: ejecuta el bloque try y, si se lanza una excepción de ese tipo, la atrapa en lugar de detener el programa. Lo estudiarás a fondo en el Nivel 4."),
                 ],
                 new WorkedExample("Una propiedad que se protege a sí misma",
                     """

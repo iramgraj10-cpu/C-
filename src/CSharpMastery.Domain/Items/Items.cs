@@ -20,6 +20,8 @@ public enum ItemPurpose
     Independent,
     /// <summary>Aplicar la habilidad en un contexto nuevo (transferencia).</summary>
     Transfer,
+    /// <summary>Hito de un proyecto integrador. No se elige en sesiones ni evaluaciones.</summary>
+    Project,
 }
 
 /// <summary>Base de todos los ítems evaluables.</summary>

@@ -76,6 +76,31 @@ public sealed class ContentValidationTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void Los_proyectos_tienen_hitos_evaluables_y_rubrica()
+    {
+        Assert.NotEmpty(Catalog.Projects);
+        Assert.Equal(Catalog.Projects.Count, Catalog.Projects.Select(p => p.Id).Distinct().Count());
+        foreach (var project in Catalog.Projects)
+        {
+            Assert.NotEmpty(project.Requirements);
+            Assert.NotEmpty(project.AcceptanceCriteria);
+            Assert.True(project.Rubric.Count >= 3, $"{project.Id}: la rúbrica necesita al menos 3 criterios");
+            Assert.True(project.Milestones.Count >= 2, $"{project.Id}: se necesitan al menos 2 hitos");
+            Assert.All(project.SkillIds, id => Assert.True(Catalog.FindSkill(id) is not null, $"{project.Id}: habilidad inexistente {id}"));
+            foreach (var milestone in project.Milestones)
+            {
+                var exercise = Assert.IsType<CodeExercise>(Catalog.FindItem(milestone.ExerciseId));
+                Assert.Equal(ItemPurpose.Project, exercise.Purpose);
+                Assert.Contains(exercise.Tests, t => t.Hidden);
+            }
+        }
+
+        // Los hitos de proyecto no deben aparecer en sesiones ni evaluaciones: solo se usan desde la página del proyecto.
+        var milestoneIds = Catalog.Projects.SelectMany(p => p.Milestones).Select(m => m.ExerciseId).ToHashSet();
+        Assert.All(Catalog.Items.Where(i => i.Purpose == ItemPurpose.Project), i => Assert.Contains(i.Id, milestoneIds));
+    }
+
+    [Fact]
     public void Las_preguntas_de_opcion_tienen_exactamente_una_respuesta_correcta_y_retroalimentacion()
     {
         foreach (var item in Catalog.Items.OfType<ChoiceItem>())
