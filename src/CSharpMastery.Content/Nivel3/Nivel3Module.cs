@@ -10,11 +10,6 @@ internal static class Nivel3Module
         [
             U01Clases.Build(r),
             U02Relaciones.Build(r),
-            new Unit("n3.u3", "n3", "Tipos modernos y diseño", "Records, structs, nulabilidad y SOLID.",
-            [
-                Outline.Skill("n3.records", "n3.u3", "Records y tipos por valor", "Igualdad por valor, inmutabilidad y struct.", Tier.Intermediate, "n3.encapsulacion"),
-                Outline.Skill("n3.nullability", "n3.u3", "Nulabilidad y prevención de errores con null", "Tipos anulables, ?. y ??.", Tier.Essential, "n3.clases"),
-                Outline.Skill("n3.solid", "n3.u3", "Principios SOLID con ejemplos", "Diseño mantenible sin dogmas.", Tier.Advanced, "n3.abstractas-interfaces"),
-            ]),
+            U03Diseno.Build(r),
         ]);
 }
