@@ -9,14 +9,7 @@ internal static class Nivel4Module
         "Excepciones, genéricos, delegados, LINQ, patrones modernos, recursos y serialización.",
         [
             U01ErroresGenericos.Build(r),
-            new Unit("n4.u2", "n4", "Funciones como datos", "Delegados, eventos, lambdas, LINQ e iteradores.",
-            [
-                Outline.Skill("n4.delegados", "n4.u2", "Delegados y eventos", "Referencias a métodos y notificaciones.", Tier.Intermediate, "n3.clases"),
-                Outline.Skill("n4.lambdas", "n4.u2", "Expresiones lambda", "Funciones anónimas, Func y Action.", Tier.Essential, "n4.delegados"),
-                Outline.Skill("n4.linq", "n4.u2", "LINQ", "Consultar colecciones con Where, Select, OrderBy, GroupBy...", Tier.Essential, "n4.lambdas", "n2.listas"),
-                Outline.Skill("n4.ienumerable-iqueryable", "n4.u2", "IEnumerable<T> frente a IQueryable<T>", "Ejecución diferida en memoria y consultas traducidas.", Tier.Advanced, "n4.linq"),
-                Outline.Skill("n4.iteradores", "n4.u2", "Iteradores con yield", "Secuencias perezosas.", Tier.Intermediate, "n4.linq"),
-            ]),
+            U02Funciones.Build(r),
             new Unit("n4.u3", "n4", "Idiomas modernos", "Patrones, extensiones, recursos, archivos, JSON, inmutabilidad y organización.",
             [
                 Outline.Skill("n4.patrones", "n4.u3", "Pattern matching y expresiones modernas", "is, switch con patrones, propiedades y listas.", Tier.Intermediate, "n1.switch", "n3.records"),
