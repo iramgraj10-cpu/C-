@@ -14,7 +14,7 @@ public static class DiagnosticExplainer
         ["CS1513"] = new("Falta una llave de cierre '}'. Cada '{' debe tener su pareja.", ErrorCategory.Syntax),
         ["CS1514"] = new("Falta una llave de apertura '{'.", ErrorCategory.Syntax),
         ["CS1026"] = new("Falta un paréntesis de cierre ')'.", ErrorCategory.Syntax),
-        ["CS1003"] = new("Error de sintaxis: el compilador esperaba otro símbolo en esa posición.", ErrorCategory.Syntax),
+        ["CS1003"] = new("Error de sintaxis: el compilador esperaba otro símbolo en esa posición. A menudo falta un ; al final de la línea anterior.", ErrorCategory.Syntax),
         ["CS1001"] = new("Se esperaba un identificador (un nombre) en esa posición.", ErrorCategory.Syntax),
         ["CS1525"] = new("Hay un término inválido en la expresión: revisa operadores o paréntesis sobrantes.", ErrorCategory.Syntax),
         ["CS1010"] = new("Una cadena de texto no está cerrada: falta la comilla doble final.", ErrorCategory.Syntax),
