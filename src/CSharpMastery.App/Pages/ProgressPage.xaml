@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:ProgressPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.ProgressPage"
+             x:DataType="vm:ProgressViewModel"
+             Title="Progreso">
+    <ContentPage.Resources>
+        <DataTemplate x:Key="StatTemplate" x:DataType="vm:StatCard">
+            <Border Style="{StaticResource Card}" Margin="0,0,10,10" WidthRequest="200" Padding="12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="{Binding Value}" FontSize="26" FontAttributes="Bold" />
+                    <Label Text="{Binding Label}" FontAttributes="Bold" />
+                    <Label Text="{Binding Help}" Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10" MaximumWidthRequest="960">
+            <Label Text="Tu progreso" Style="{StaticResource Title}" />
+            <Label Text="Ver contenido no es lo mismo que dominarlo. Por eso cada indicador mide algo distinto y no hay una barra única de avance." Style="{StaticResource Muted}" />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
+
+            <Label Text="Contenido" Style="{StaticResource Heading}" />
+            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Content}" BindableLayout.ItemTemplate="{StaticResource StatTemplate}" />
+            <Label Text="Dominio demostrado" Style="{StaticResource Heading}" />
+            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Mastery}" BindableLayout.ItemTemplate="{StaticResource StatTemplate}" />
+            <Label Text="Hábitos de práctica" Style="{StaticResource Heading}" />
+            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Habits}" BindableLayout.ItemTemplate="{StaticResource StatTemplate}" />
+
+            <VerticalStackLayout IsVisible="{Binding Errors.Count, Converter={StaticResource Positive}}" Spacing="6">
+                <Label Text="Errores frecuentes" Style="{StaticResource Heading}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Errors}" Spacing="4">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Label Text="{Binding StringFormat='• {0}'}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding Calibration.Count, Converter={StaticResource Positive}}" Spacing="6">
+                <Label Text="Confianza frente a resultados" Style="{StaticResource Heading}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Calibration}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CalibrationLine">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Skill}" FontAttributes="Bold" />
+                                <Label Text="{Binding Label}" />
+                                <Label Text="{Binding Detail}" Style="{StaticResource Muted}" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Habilidades" Style="{StaticResource Heading}" />
+                <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center">
+                    <Label Text="Solo iniciadas" VerticalOptions="Center" Style="{StaticResource Muted}" />
+                    <Switch IsToggled="{Binding ShowOnlyStarted}" SemanticProperties.Description="Mostrar solo habilidades iniciadas" />
+                </HorizontalStackLayout>
+            </Grid>
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="6">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SkillProgressLine">
+                        <Border Style="{StaticResource Card}" Padding="12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProgressViewModel}}, Path=OpenSkillCommand, x:DataType=vm:ProgressViewModel}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="12,*,Auto" ColumnSpacing="10">
+                                <Ellipse WidthRequest="10" HeightRequest="10" VerticalOptions="Start" Margin="0,6,0,0" Fill="{Binding Mastery, Converter={StaticResource MasteryColor}}" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Accuracy}" Style="{StaticResource Muted}" />
+                                    <Label Text="{Binding Review}" Style="{StaticResource Muted}" IsVisible="{Binding Review, Converter={StaticResource HasValue}}" />
+                                    <Label Text="{Binding Pending}" Style="{StaticResource Muted}" IsVisible="{Binding Pending, Converter={StaticResource HasValue}}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2">
+                                    <Label Text="{Binding MasteryLabel}" Style="{StaticResource Badge}" />
+                                    <Label Text="{Binding Module}" Style="{StaticResource Muted}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</local:ProgressPageBase>

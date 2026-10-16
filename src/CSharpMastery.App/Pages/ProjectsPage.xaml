@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:ProjectsPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.ProjectsPage"
+             x:DataType="vm:ProjectsViewModel"
+             Title="Proyectos">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="860">
+            <Label Text="Proyectos integradores" Style="{StaticResource Title}" />
+            <Label Text="Cada proyecto se construye por hitos con pruebas automáticas y se cierra con una autoevaluación usando una rúbrica." Style="{StaticResource Muted}" />
+            <Label Text="Todavía no hay proyectos disponibles." IsVisible="{Binding IsEmpty}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Projects}" Spacing="10">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProjectLine">
+                        <Border Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=OpenCommand, x:DataType=vm:ProjectsViewModel}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Title}" Style="{StaticResource Heading}" Margin="0" />
+                                <Label Text="{Binding Description}" />
+                                <Label Text="{Binding Status}" Style="{StaticResource Badge}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</local:ProjectsPageBase>

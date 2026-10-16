@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:CSharpMastery.App.Views"
+             xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ChoiceItemView"
+             x:DataType="items:ChoiceItemViewModel">
+    <VerticalStackLayout Spacing="12">
+        <views:ItemHeaderView />
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}" Spacing="8">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="items:ChoiceOptionViewModel">
+                    <Border Padding="12" StrokeThickness="2" StrokeShape="RoundRectangle 8"
+                            Stroke="{Binding RevealedCorrect, Converter={StaticResource OptionStroke}}"
+                            BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectedBg}}"
+                            SemanticProperties.Description="{Binding Text}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type items:ChoiceItemViewModel}}, Path=SelectCommand, x:DataType=items:ChoiceItemViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Text="{Binding Letter}" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Text="{Binding Text}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+        <HorizontalStackLayout Spacing="8">
+            <Button Text="Comprobar" Command="{Binding SubmitCommand}" />
+            <Button Text="Ver la respuesta" Style="{StaticResource Secondary}" Command="{Binding RevealAnswerCommand}">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource AllTrue}">
+                        <Binding Path="HasSubmitted" />
+                        <Binding Path="IsSolved" Converter="{StaticResource Not}" />
+                        <Binding Path="Settings.ShowFeedback" />
+                    </MultiBinding>
+                </Button.IsVisible>
+            </Button>
+        </HorizontalStackLayout>
+        <views:ItemFooterView />
+    </VerticalStackLayout>
+</ContentView>

@@ -32,4 +32,7 @@ public sealed record LineNoteDisplay(int Line, string Note)
 }
 
 /// <summary>Elemento seleccionable genérico (opciones, presets, niveles).</summary>
-public sealed record OptionDisplay<T>(T Value, string Label);
+public sealed record OptionDisplay<T>(T Value, string Label)
+{
+    public override string ToString() => Label;
+}

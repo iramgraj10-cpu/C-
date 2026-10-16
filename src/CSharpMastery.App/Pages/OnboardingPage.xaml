@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:OnboardingPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.OnboardingPage"
+             x:DataType="vm:OnboardingViewModel"
+             Title="Bienvenida"
+             Shell.TabBarIsVisible="False"
+             Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14" MaximumWidthRequest="680">
+            <Label Text="Bienvenido a C# Mastery" Style="{StaticResource Title}" />
+            <Label Text="{Binding MethodText}" />
+            <Label Text="Todo se guarda solo en este dispositivo. No necesitas cuenta ni conexión." Style="{StaticResource Muted}" />
+
+            <Label Text="¿Cómo te llamas?" Style="{StaticResource Heading}" />
+            <Entry Text="{Binding DisplayName}" Placeholder="Tu nombre (opcional)" SemanticProperties.Description="Tu nombre" />
+
+            <Label Text="¿Cuál es tu experiencia?" Style="{StaticResource Heading}" />
+            <Picker ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}" Title="Elige una opción" />
+
+            <Label Text="¿Para qué quieres aprender C#?" Style="{StaticResource Heading}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Goals}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:GoalOption">
+                        <HorizontalStackLayout>
+                            <CheckBox IsChecked="{Binding IsSelected}" SemanticProperties.Description="{Binding Text}" />
+                            <Label Text="{Binding Text}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Label Text="¿Cuánto tiempo sueles tener por sesión?" Style="{StaticResource Heading}" />
+            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SessionOptions}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:Int32">
+                        <Button Style="{StaticResource Secondary}" Margin="0,0,8,8" Text="{Binding StringFormat='{0} min'}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OnboardingViewModel}}, Path=SelectMinutesCommand, x:DataType=vm:OnboardingViewModel}"
+                                CommandParameter="{Binding .}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+            <Label Text="{Binding SessionMinutes, StringFormat='Elegido: {0} minutos (puedes cambiarlo en cada sesión).'}" Style="{StaticResource Muted}" />
+
+            <Button Text="Empezar" Command="{Binding StartCommand}" />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</local:OnboardingPageBase>

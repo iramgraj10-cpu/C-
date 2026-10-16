@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:CSharpMastery.App.Views"
+             xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ShortAnswerItemView"
+             x:DataType="items:ShortAnswerItemViewModel">
+    <VerticalStackLayout Spacing="12">
+        <views:ItemHeaderView />
+        <Editor Text="{Binding Answer}" Placeholder="{Binding Placeholder}" IsVisible="{Binding IsMultiline}" Style="{StaticResource CodeEditor}"
+                MinimumHeightRequest="90" SemanticProperties.Description="Tu respuesta" />
+        <Entry Text="{Binding Answer}" Placeholder="{Binding Placeholder}" IsVisible="{Binding IsMultiline, Converter={StaticResource Not}}"
+               ReturnCommand="{Binding SubmitCommand}" SemanticProperties.Description="Tu respuesta" />
+        <HorizontalStackLayout Spacing="8">
+            <Button Text="Comprobar" Command="{Binding SubmitCommand}" />
+            <Button Text="Ver la respuesta" Style="{StaticResource Secondary}" Command="{Binding RevealAnswerCommand}">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource AllTrue}">
+                        <Binding Path="HasSubmitted" />
+                        <Binding Path="IsSolved" Converter="{StaticResource Not}" />
+                        <Binding Path="Settings.ShowFeedback" />
+                    </MultiBinding>
+                </Button.IsVisible>
+            </Button>
+        </HorizontalStackLayout>
+        <views:ItemFooterView />
+    </VerticalStackLayout>
+</ContentView>

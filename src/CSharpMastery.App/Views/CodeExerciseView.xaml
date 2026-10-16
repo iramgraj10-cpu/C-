@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:CSharpMastery.App.Views"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
+             xmlns:dom="clr-namespace:CSharpMastery.Domain.Items;assembly=CSharpMastery.Domain"
+             x:Class="CSharpMastery.App.Views.CodeExerciseView"
+             x:DataType="items:CodeExerciseViewModel">
+    <VerticalStackLayout Spacing="12">
+        <views:ItemHeaderView />
+
+        <!-- Motor no disponible -->
+        <Border Style="{StaticResource InfoBox}" IsVisible="{Binding EngineAvailable, Converter={StaticResource Not}}">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Ejecución no disponible" FontAttributes="Bold" />
+                <Label Text="{Binding EngineMessage}" />
+                <Button Text="Comparar con la solución y autoevaluarme" Style="{StaticResource Secondary}" HorizontalOptions="Start" Command="{Binding StartSelfCheckCommand}" />
+                <HorizontalStackLayout Spacing="8" IsVisible="{Binding SelfCheckVisible}">
+                    <Button Text="Lo resolví" Command="{Binding SelfAssessCommand}" CommandParameter="true" />
+                    <Button Text="No lo resolví" Style="{StaticResource Secondary}" Command="{Binding SelfAssessCommand}" CommandParameter="false" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Ejemplos visibles -->
+        <VerticalStackLayout Spacing="6" IsVisible="{Binding VisibleExamples.Count, Converter={StaticResource Positive}}">
+            <Label Text="Ejemplos" Style="{StaticResource Muted}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding VisibleExamples}" Spacing="6">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="dom:CodeTestCase">
+                        <Border Style="{StaticResource CodeBox}" Padding="10">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Name}" Style="{StaticResource CodeLabel}" FontAttributes="Bold" />
+                                <Label Text="{Binding Check, StringFormat='Llamada: {0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Check, Converter={StaticResource HasValue}}" />
+                                <Label Text="{Binding Input, StringFormat='Entrada:&#10;{0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Input, Converter={StaticResource HasValue}}" />
+                                <Label Text="{Binding Expected, StringFormat='Resultado esperado:&#10;{0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Expected, Converter={StaticResource HasValue}}" />
+                                <Label Text="{Binding ExpectedException, StringFormat='Debe lanzar: {0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding ExpectedException, Converter={StaticResource HasValue}}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <Label Text="{Binding HiddenTestCount, StringFormat='Además hay {0} prueba(s) oculta(s), incluidos casos límite: tu código debe resolver el problema en general.'}" Style="{StaticResource Muted}" />
+        </VerticalStackLayout>
+        <Label Text="{Binding RequiredConstructsText}" Style="{StaticResource Muted}" IsVisible="{Binding RequiredConstructsText, Converter={StaticResource HasValue}}" />
+
+        <!-- Editor con números de línea -->
+        <Border Style="{StaticResource CodeBox}" Padding="8">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                <Label Text="{Binding LineNumbers}" Style="{StaticResource CodeLabel}" TextColor="{StaticResource CodeLineNumber}"
+                       HorizontalTextAlignment="End" Margin="0,7,0,0" SemanticProperties.Description="Números de línea" />
+                <Editor x:Name="CodeEditor" Grid.Column="1" Text="{Binding SourceCode}" Style="{StaticResource CodeEditor}"
+                        SemanticProperties.Description="Editor de código" SemanticProperties.Hint="Escribe tu solución en C#" />
+            </Grid>
+        </Border>
+
+        <VerticalStackLayout IsVisible="{Binding IsProgram}" Spacing="4">
+            <Label Text="Entrada para «Ejecutar» (una línea por cada Console.ReadLine)" Style="{StaticResource Muted}" />
+            <Editor Text="{Binding Stdin}" Style="{StaticResource CodeEditor}" MinimumHeightRequest="60" SemanticProperties.Description="Entrada estándar" />
+        </VerticalStackLayout>
+
+        <FlexLayout Wrap="Wrap" AlignItems="Center">
+            <Button Text="Ejecutar" Style="{StaticResource Secondary}" Margin="0,0,8,8" Command="{Binding RunCommand}" ToolTipProperties.Text="Ejecutar (F5)" />
+            <Button Text="{Binding CheckButtonText}" Margin="0,0,8,8" Command="{Binding CheckCommand}" ToolTipProperties.Text="Comprobar (Ctrl+Enter)" />
+            <Button Text="Restablecer" Style="{StaticResource Link}" Margin="0,0,8,8" Command="{Binding ResetCodeCommand}" />
+            <Button Text="Ver solución" Style="{StaticResource Link}" Margin="0,0,8,8" Command="{Binding ShowSolutionCommand}" IsVisible="{Binding CanShowSolution}" />
+            <ActivityIndicator IsRunning="{Binding IsRunning}" IsVisible="{Binding IsRunning}" Margin="0,0,8,8" />
+        </FlexLayout>
+        <Label Text="{Binding SolutionGateText}" Style="{StaticResource Muted}" IsVisible="{Binding SolutionGateText, Converter={StaticResource HasValue}}" />
+
+        <Border Style="{StaticResource InfoBox}" IsVisible="{Binding ResultSummary, Converter={StaticResource HasValue}}">
+            <Label Text="{Binding ResultSummary}" />
+        </Border>
+
+        <!-- Errores de compilación explicados -->
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Diagnostics}" Spacing="6">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="items:DiagnosticDisplay">
+                    <Border Style="{StaticResource ErrorBox}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label FontAttributes="Bold">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Code}" />
+                                        <Span Text="  " />
+                                        <Span Text="{Binding Location}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Text="{Binding Message}" FontFamily="{StaticResource MonoFont}" FontSize="13" />
+                            <Label Text="{Binding Explanation}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+
+        <!-- Resultados por prueba: esperado vs obtenido -->
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding TestResults}" Spacing="6">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="items:TestDisplay">
+                    <Border Padding="10" StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="{Binding Passed, Converter={StaticResource FeedbackBg}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Title}" FontAttributes="Bold" />
+                            <Label Text="{Binding Message}" IsVisible="{Binding Message, Converter={StaticResource HasValue}}" />
+                            <Label Text="{Binding Input, StringFormat='Entrada: {0}'}" FontFamily="{StaticResource MonoFont}" FontSize="13" IsVisible="{Binding Input, Converter={StaticResource HasValue}}" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding ShowComparison}">
+                                <VerticalStackLayout>
+                                    <Label Text="Esperado" Style="{StaticResource Muted}" />
+                                    <Border Style="{StaticResource CodeBox}" Padding="8">
+                                        <Label Text="{Binding Expected}" Style="{StaticResource CodeLabel}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Obtenido" Style="{StaticResource Muted}" />
+                                    <Border Style="{StaticResource CodeBox}" Padding="8">
+                                        <Label Text="{Binding Actual}" Style="{StaticResource CodeLabel}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Label Text="{Binding Hint, StringFormat='Pista: {0}'}" IsVisible="{Binding Hint, Converter={StaticResource HasValue}}" Style="{StaticResource Muted}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout IsVisible="{Binding ConsoleOutput, Converter={StaticResource HasValue}}" Spacing="4">
+            <Label Text="Consola" Style="{StaticResource Muted}" />
+            <Border Style="{StaticResource CodeBox}">
+                <ScrollView Orientation="Horizontal">
+                    <Label Text="{Binding ConsoleOutput}" Style="{StaticResource CodeLabel}" />
+                </ScrollView>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Solución explicada -->
+        <VerticalStackLayout IsVisible="{Binding SolutionVisible}" Spacing="6">
+            <Label Text="Una solución posible" Style="{StaticResource Heading}" />
+            <controls:CodeView Code="{Binding ReferenceSolution}" />
+            <Label Text="{Binding SolutionExplanation}" />
+            <Label Text="Cualquier otra solución que pase las pruebas también es válida." Style="{StaticResource Muted}" />
+        </VerticalStackLayout>
+
+        <views:ItemFooterView />
+
+        <!-- Historial -->
+        <VerticalStackLayout IsVisible="{Binding History.Count, Converter={StaticResource Positive}}" Spacing="4">
+            <Label Text="Tus entregas anteriores" Style="{StaticResource Muted}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding History}" Spacing="2">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="items:SubmissionDisplay">
+                        <Label Text="{Binding Title}" Style="{StaticResource Muted}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

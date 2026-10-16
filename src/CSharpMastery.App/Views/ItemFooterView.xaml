@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ItemFooterView"
+             x:DataType="items:ItemViewModel">
+    <VerticalStackLayout Spacing="10">
+        <!-- Pistas progresivas -->
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RevealedHints}" Spacing="6">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Border Style="{StaticResource InfoBox}">
+                        <Label Text="{Binding StringFormat='Pista: {0}'}" />
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+        <Button Text="{Binding HintButtonText}" Style="{StaticResource Secondary}" HorizontalOptions="Start"
+                Command="{Binding RevealHintCommand}" IsVisible="{Binding HasMoreHints}" />
+
+        <!-- Retroalimentación inmediata -->
+        <Border Padding="12" StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                BackgroundColor="{Binding FeedbackPositive, Converter={StaticResource FeedbackBg}}"
+                IsVisible="{Binding Feedback, Converter={StaticResource HasValue}}">
+            <Label Text="{Binding Feedback}" SemanticProperties.Description="{Binding Feedback}" />
+        </Border>
+
+        <VerticalStackLayout IsVisible="{Binding ShowExplanation}" Spacing="4">
+            <Label Text="Explicación" Style="{StaticResource Heading}" />
+            <Label Text="{Binding Explanation}" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Messages}" Spacing="4">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Label Text="{Binding StringFormat='• {0}'}" Style="{StaticResource Muted}" />
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+
+        <Button Text="Continuar" Command="{Binding ContinueCommand}" IsVisible="{Binding CanContinue}" HorizontalOptions="End" />
+    </VerticalStackLayout>
+</ContentView>

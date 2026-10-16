@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Aplicación .NET MAUI (un solo proyecto para Windows, Android, iOS y macOS).
+    - net10.0-android se compila en cualquier sistema con la carga de trabajo "maui-android".
+    - net10.0-windows10.0.19041.0 solo se agrega al compilar en Windows (WinUI necesita herramientas de Windows).
+    - net10.0-ios y net10.0-maccatalyst solo se agregan al compilar en macOS (requieren Xcode).
+    - net10.0 (biblioteca sin plataforma) existe para verificar en Linux/CI que el XAML y las vistas compilan.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net10.0-android</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+
+    <OutputType Condition="'$(TargetFramework)' != 'net10.0'">Exe</OutputType>
+    <OutputType Condition="'$(TargetFramework)' == 'net10.0'">Library</OutputType>
+    <RootNamespace>CSharpMastery.App</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+    <!-- Un binding a una propiedad inexistente debe romper la compilación, no fallar en silencio. -->
+    <WarningsAsErrors>$(WarningsAsErrors);XC0045;XC0022;XC0025</WarningsAsErrors>
+
+    <ApplicationTitle>C# Mastery</ApplicationTitle>
+    <ApplicationId>com.csharpmastery.app</ApplicationId>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+    <!-- Windows: aplicación sin empaquetar (ejecutable + carpeta). Ver docs/PACKAGING.md para MSIX. -->
+    <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
+    <WindowsAppSDKSelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WindowsAppSDKSelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4B2A8A" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#4B2A8A" BaseSize="128,128" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpMastery.Presentation\CSharpMastery.Presentation.csproj" />
+  </ItemGroup>
+
+  <!--
+    Escritorio (Windows): el ejecutor de código es un proceso aparte. Se publica autocontenido junto a la app,
+    en la subcarpeta "runner", para que funcione sin instalar .NET.
+  -->
+  <Target Name="PublishCodeRunner" AfterTargets="Build"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+    <PropertyGroup>
+      <_RunnerRid Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">win-x64</_RunnerRid>
+      <_RunnerRid Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">osx-arm64</_RunnerRid>
+    </PropertyGroup>
+    <MSBuild Projects="..\CSharpMastery.Runner\CSharpMastery.Runner.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(_RunnerRid);SelfContained=true;PublishDir=$(OutDir)runner\" />
+  </Target>
+</Project>

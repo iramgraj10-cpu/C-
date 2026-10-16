@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:CurriculumPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.CurriculumPage"
+             x:DataType="vm:CurriculumViewModel"
+             Title="Ruta de aprendizaje">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="900">
+            <Label Text="Ruta de aprendizaje" Style="{StaticResource Title}" />
+            <Label Text="Ocho niveles, de los fundamentos a proyectos integradores. Cada habilidad muestra tu estado real: vista, practicada, dominio provisional o retenida." Style="{StaticResource Muted}" />
+            <Button Text="Evaluación acumulativa" Style="{StaticResource Secondary}" HorizontalOptions="Start" Command="{Binding AssessCumulativeCommand}" />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Modules}" Spacing="12">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ModuleGroup">
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Title}" Style="{StaticResource Heading}" Margin="0" />
+                                        <Label Text="{Binding Summary}" Style="{StaticResource Muted}" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1" Style="{StaticResource Link}" Text="Ver / ocultar" VerticalOptions="Start"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CurriculumViewModel}}, Path=ToggleCommand, x:DataType=vm:CurriculumViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                                <VerticalStackLayout IsVisible="{Binding IsExpanded}" Spacing="12">
+                                    <Label Text="{Binding Description}" />
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Units}" Spacing="14">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:UnitGroup">
+                                                <VerticalStackLayout Spacing="6">
+                                                    <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
+                                                    <Label Text="{Binding Description}" Style="{StaticResource Muted}" />
+                                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="4">
+                                                        <BindableLayout.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:SkillLine">
+                                                                <Border StrokeThickness="0" Padding="8,6" BackgroundColor="Transparent">
+                                                                    <Border.GestureRecognizers>
+                                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CurriculumViewModel}}, Path=OpenSkillCommand, x:DataType=vm:CurriculumViewModel}" CommandParameter="{Binding .}" />
+                                                                    </Border.GestureRecognizers>
+                                                                    <Grid ColumnDefinitions="12,*,Auto" ColumnSpacing="10">
+                                                                        <Ellipse WidthRequest="10" HeightRequest="10" VerticalOptions="Center" Fill="{Binding Mastery, Converter={StaticResource MasteryColor}}" />
+                                                                        <VerticalStackLayout Grid.Column="1">
+                                                                            <Label Text="{Binding Title}" />
+                                                                            <Label Text="{Binding TierLabel}" Style="{StaticResource Muted}" />
+                                                                        </VerticalStackLayout>
+                                                                        <Label Grid.Column="2" Text="{Binding StatusText}" Style="{StaticResource Badge}" VerticalOptions="Center" />
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </BindableLayout.ItemTemplate>
+                                                    </VerticalStackLayout>
+                                                    <Button Text="Evaluar esta unidad" Style="{StaticResource Secondary}" HorizontalOptions="Start" IsVisible="{Binding CanAssess}"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CurriculumViewModel}}, Path=AssessUnitCommand, x:DataType=vm:CurriculumViewModel}"
+                                                            CommandParameter="{Binding .}" />
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</local:CurriculumPageBase>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.SummaryStepView"
+             x:DataType="a:SummaryStepViewModel">
+    <VerticalStackLayout Spacing="12">
+        <Label Text="{Binding Title}" Style="{StaticResource Title}" />
+        <Label Text="{Binding ScoreText}" FontSize="17" />
+        <Label Text="{Binding TimeText}" Style="{StaticResource Muted}" IsVisible="{Binding TimeText, Converter={StaticResource HasValue}}" />
+
+        <VerticalStackLayout IsVisible="{Binding Skills.Count, Converter={StaticResource Positive}}" Spacing="6">
+            <Label Text="Por habilidad" Style="{StaticResource Heading}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="6">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="a:SummarySkillLine">
+                        <Border Style="{StaticResource Card}" Padding="12">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                <Label Grid.Column="1" Text="{Binding Score}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource Muted}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding MasteryLabel}" />
+                                            <Span Text=" · " />
+                                            <Span Text="{Binding NextReview}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout IsVisible="{Binding HasErrors}" Spacing="6">
+            <Label Text="Errores que se repiten" Style="{StaticResource Heading}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Errors}" Spacing="4">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Label Text="{Binding StringFormat='• {0}'}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Notes}" Spacing="4">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Border Style="{StaticResource InfoBox}">
+                        <Label Text="{Binding .}" />
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+
+        <Button Text="Terminar" Command="{Binding FinishCommand}" HorizontalOptions="End" />
+    </VerticalStackLayout>
+</ContentView>

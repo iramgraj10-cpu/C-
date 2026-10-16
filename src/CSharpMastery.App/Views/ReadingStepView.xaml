@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:CSharpMastery.App.Views"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             xmlns:d="clr-namespace:CSharpMastery.Presentation.ViewModels.Display;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ReadingStepView"
+             x:DataType="a:ReadingStepViewModel">
+    <VerticalStackLayout Spacing="12">
+        <Label Text="{Binding Heading}" Style="{StaticResource Title}" />
+
+        <!-- Explicación: objetivo, bloques y error común -->
+        <VerticalStackLayout IsVisible="{Binding IsExplanation}" Spacing="10">
+            <Border Style="{StaticResource InfoBox}">
+                <Label Text="{Binding Content.Objective, StringFormat='Objetivo: {0}'}" />
+            </Border>
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Content.Blocks}" Spacing="10">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="d:ContentBlockDisplay">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Text}" IsVisible="{Binding IsParagraph}" />
+                            <controls:CodeView Code="{Binding Text}" Caption="{Binding Caption}" IsVisible="{Binding IsCode}" />
+                            <Border Style="{StaticResource InfoBox}" IsVisible="{Binding IsCallout}">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding CalloutLabel}" Style="{StaticResource Badge}" />
+                                    <Label Text="{Binding Text}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <Label Text="Error común" Style="{StaticResource Heading}" />
+            <Label Text="{Binding Content.MistakeDescription}" />
+            <controls:CodeView Code="{Binding Content.MistakeWrongCode}" Caption="Con el error" />
+            <Border Style="{StaticResource ErrorBox}">
+                <Label Text="{Binding Content.MistakeWhy}" />
+            </Border>
+            <controls:CodeView Code="{Binding Content.MistakeFixedCode}" Caption="Corregido" />
+        </VerticalStackLayout>
+
+        <!-- Ejemplo resuelto -->
+        <VerticalStackLayout IsVisible="{Binding IsWorkedExample}" Spacing="10">
+            <Label Text="Lee el código línea por línea con las notas. Luego tendrás que completarlo y escribirlo tú." Style="{StaticResource Muted}" />
+            <controls:CodeView Code="{Binding Content.ExampleCode}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Content.ExampleNotes}" Spacing="4">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="d:LineNoteDisplay">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <Label Text="{Binding Label}" Style="{StaticResource Badge}" />
+                            <Label Grid.Column="1" Text="{Binding Note}" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <VerticalStackLayout IsVisible="{Binding Content.HasExampleOutput}" Spacing="4">
+                <Label Text="Salida en consola" Style="{StaticResource Muted}" />
+                <Border Style="{StaticResource CodeBox}">
+                    <Label Text="{Binding Content.ExampleOutput}" Style="{StaticResource CodeLabel}" />
+                </Border>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <Button Text="Entendido, continuar" Command="{Binding ContinueCommand}" HorizontalOptions="End" />
+    </VerticalStackLayout>
+</ContentView>

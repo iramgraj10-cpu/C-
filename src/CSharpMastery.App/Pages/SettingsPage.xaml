@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:SettingsPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Ajustes">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="760">
+            <Label Text="Ajustes" Style="{StaticResource Title}" />
+            <Border Style="{StaticResource InfoBox}" IsVisible="{Binding StatusMessage, Converter={StaticResource HasValue}}">
+                <Label Text="{Binding StatusMessage}" />
+            </Border>
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Perfil" Style="{StaticResource Heading}" Margin="0" />
+                    <Label Text="Nombre" Style="{StaticResource Muted}" />
+                    <Entry Text="{Binding DisplayName}" SemanticProperties.Description="Nombre" />
+                    <Label Text="Experiencia inicial" Style="{StaticResource Muted}" />
+                    <Picker ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}" />
+                    <Label Text="Duración preferida de sesión (minutos, 10–90)" Style="{StaticResource Muted}" />
+                    <Entry Text="{Binding PreferredMinutes}" Keyboard="Numeric" WidthRequest="120" HorizontalOptions="Start" />
+                    <Label Text="Tema" Style="{StaticResource Muted}" />
+                    <Picker ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" />
+                    <Button Text="Guardar perfil" Command="{Binding SaveProfileCommand}" HorizontalOptions="Start" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Criterios de dominio" Style="{StaticResource Heading}" Margin="0" />
+                    <Label Text="Definen cuándo una habilidad cuenta como dominada. Los valores recomendados son exigentes a propósito." Style="{StaticResource Muted}" />
+                    <Grid ColumnDefinitions="*,100" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                        <Label Text="Precisión mínima reciente (%)" VerticalOptions="Center" />
+                        <Entry Grid.Column="1" Text="{Binding MinAccuracyPercent}" Keyboard="Numeric" />
+                        <Label Grid.Row="1" Text="Intentos calificados mínimos" VerticalOptions="Center" />
+                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding MinGradedAttempts}" Keyboard="Numeric" />
+                        <Label Grid.Row="2" Text="Ventana de intentos recientes" VerticalOptions="Center" />
+                        <Entry Grid.Row="2" Grid.Column="1" Text="{Binding AccuracyWindow}" Keyboard="Numeric" />
+                        <Label Grid.Row="3" Text="Ejercicios de código resueltos sin ayuda" VerticalOptions="Center" />
+                        <Entry Grid.Row="3" Grid.Column="1" Text="{Binding MinIndependentCode}" Keyboard="Numeric" />
+                        <Label Grid.Row="4" Text="Problemas de transferencia resueltos" VerticalOptions="Center" />
+                        <Entry Grid.Row="4" Grid.Column="1" Text="{Binding MinTransfer}" Keyboard="Numeric" />
+                        <Label Grid.Row="5" Text="Días mínimos para confirmar retención" VerticalOptions="Center" />
+                        <Entry Grid.Row="5" Grid.Column="1" Text="{Binding RetentionDays}" Keyboard="Numeric" />
+                        <Label Grid.Row="6" Text="Aciertos para aprobar evaluaciones (%)" VerticalOptions="Center" />
+                        <Entry Grid.Row="6" Grid.Column="1" Text="{Binding AssessmentPassPercent}" Keyboard="Numeric" />
+                    </Grid>
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Guardar criterios" Command="{Binding SaveCriteriaCommand}" />
+                        <Button Text="Restaurar recomendados" Style="{StaticResource Secondary}" Command="{Binding RestoreDefaultCriteriaCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Respaldo" Style="{StaticResource Heading}" Margin="0" />
+                    <Label Text="Exporta todo tu progreso a un archivo JSON y restáuralo en este u otro dispositivo." Style="{StaticResource Muted}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Exportar progreso" Command="{Binding ExportCommand}" />
+                        <Button Text="Restaurar desde archivo" Style="{StaticResource Secondary}" Command="{Binding ImportCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Ejecución de código" Style="{StaticResource Heading}" Margin="0" />
+                    <Label Text="{Binding EngineStatus}" FontAttributes="Bold" />
+                    <Label Text="{Binding EngineMessage}" />
+                    <Button Text="Probar el motor" Style="{StaticResource Secondary}" Command="{Binding TestEngineCommand}" HorizontalOptions="Start" />
+                    <Label Text="{Binding EngineTestResult}" IsVisible="{Binding EngineTestResult, Converter={StaticResource HasValue}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Privacidad" Style="{StaticResource Heading}" Margin="0" />
+                    <Label Text="{Binding PrivacyText}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</local:SettingsPageBase>

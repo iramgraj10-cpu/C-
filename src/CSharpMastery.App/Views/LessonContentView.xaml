@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:d="clr-namespace:CSharpMastery.Presentation.ViewModels.Display;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.LessonContentView"
+             x:DataType="d:LessonContent">
+    <VerticalStackLayout Spacing="12">
+        <Border Style="{StaticResource InfoBox}">
+            <VerticalStackLayout>
+                <Label Text="Objetivo" Style="{StaticResource Badge}" />
+                <Label Text="{Binding Objective}" />
+                <Label Text="{Binding EstimatedTime}" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Label Text="Explicación" Style="{StaticResource Heading}" />
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Blocks}" Spacing="10">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="d:ContentBlockDisplay">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding Text}" IsVisible="{Binding IsParagraph}" />
+                        <controls:CodeView Code="{Binding Text}" Caption="{Binding Caption}" IsVisible="{Binding IsCode}" />
+                        <Border Style="{StaticResource InfoBox}" IsVisible="{Binding IsCallout}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding CalloutLabel}" Style="{StaticResource Badge}" />
+                                <Label Text="{Binding Text}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+
+        <Label Text="{Binding ExampleTitle, StringFormat='Ejemplo resuelto: {0}'}" Style="{StaticResource Heading}" />
+        <controls:CodeView Code="{Binding ExampleCode}" />
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ExampleNotes}" Spacing="4">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="d:LineNoteDisplay">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="{Binding Label}" Style="{StaticResource Badge}" />
+                        <Label Grid.Column="1" Text="{Binding Note}" />
+                    </Grid>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+        <VerticalStackLayout IsVisible="{Binding HasExampleOutput}" Spacing="4">
+            <Label Text="Salida en consola" Style="{StaticResource Muted}" />
+            <Border Style="{StaticResource CodeBox}">
+                <Label Text="{Binding ExampleOutput}" Style="{StaticResource CodeLabel}" />
+            </Border>
+        </VerticalStackLayout>
+
+        <Label Text="Error común" Style="{StaticResource Heading}" />
+        <Label Text="{Binding MistakeDescription}" />
+        <controls:CodeView Code="{Binding MistakeWrongCode}" Caption="Con el error" />
+        <Border Style="{StaticResource ErrorBox}">
+            <Label Text="{Binding MistakeWhy}" />
+        </Border>
+        <controls:CodeView Code="{Binding MistakeFixedCode}" Caption="Corregido" />
+
+        <Border Style="{StaticResource InfoBox}">
+            <VerticalStackLayout>
+                <Label Text="Criterio de dominio" Style="{StaticResource Badge}" />
+                <Label Text="{Binding MasteryCriterion}" />
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

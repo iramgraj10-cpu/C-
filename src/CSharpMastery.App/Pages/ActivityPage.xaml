@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:ActivityPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Pages.ActivityPage"
+             x:DataType="a:ActivityViewModel"
+             Title="{Binding Title}"
+             Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+        <!-- Barra de estado: bloque, avance y tiempo (informativo, no punitivo) -->
+        <Border Padding="16,10" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <VerticalStackLayout Spacing="4" MaximumWidthRequest="900">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding BlockLabel}" Style="{StaticResource Badge}" IsVisible="{Binding BlockLabel, Converter={StaticResource HasValue}}" />
+                        <Label Text="{Binding ProgressText}" Style="{StaticResource Muted}" />
+                        <Label Text="{Binding ElapsedText}" Style="{StaticResource Muted}" IsVisible="{Binding ElapsedText, Converter={StaticResource HasValue}}" />
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                        <Button Text="Pausar" Style="{StaticResource Secondary}" Command="{Binding PauseCommand}" IsVisible="{Binding IsSession}" />
+                        <Button Text="Terminar" Style="{StaticResource Link}" Command="{Binding FinishEarlyCommand}" IsVisible="{Binding IsSession}" />
+                        <Button Text="Salir" Style="{StaticResource Secondary}" Command="{Binding ExitCommand}" IsVisible="{Binding IsSession, Converter={StaticResource Not}}" />
+                    </HorizontalStackLayout>
+                </Grid>
+                <Label Text="{Binding TimeNotice}" IsVisible="{Binding TimeNotice, Converter={StaticResource HasValue}}"
+                       TextColor="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}"
+                       TextColor="{AppThemeBinding Light={StaticResource ErrorLight}, Dark={StaticResource ErrorDark}}" />
+            </VerticalStackLayout>
+        </Border>
+        <ScrollView x:Name="Scroller" Grid.Row="1">
+            <ContentView x:Name="StepHost" Padding="16" MaximumWidthRequest="900" />
+        </ScrollView>
+    </Grid>
+</local:ActivityPageBase>
