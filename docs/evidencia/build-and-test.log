@@ -1,0 +1,40 @@
+Fri Oct 16 21:51:14 UTC 2026
+Linux 6.18.44-fc-v139 x86_64
+10.0.402
+  Determining projects to restore...
+  Restored /home/claude/csharp-mastery/tests/CSharpMastery.Tests/CSharpMastery.Tests.csproj (in 376 ms).
+  Restored /home/claude/csharp-mastery/src/CSharpMastery.Runner/CSharpMastery.Runner.csproj (in 375 ms).
+  6 of 8 projects are up-to-date for restore.
+  CSharpMastery.Domain -> /home/claude/csharp-mastery/src/CSharpMastery.Domain/bin/Debug/net10.0/CSharpMastery.Domain.dll
+  CSharpMastery.Content -> /home/claude/csharp-mastery/src/CSharpMastery.Content/bin/Debug/net10.0/CSharpMastery.Content.dll
+  CSharpMastery.Execution -> /home/claude/csharp-mastery/src/CSharpMastery.Execution/bin/Debug/net10.0/CSharpMastery.Execution.dll
+  CSharpMastery.Learning -> /home/claude/csharp-mastery/src/CSharpMastery.Learning/bin/Debug/net10.0/CSharpMastery.Learning.dll
+  CSharpMastery.Runner -> /home/claude/csharp-mastery/src/CSharpMastery.Runner/bin/Debug/net10.0/CSharpMastery.Runner.dll
+  CSharpMastery.Persistence -> /home/claude/csharp-mastery/src/CSharpMastery.Persistence/bin/Debug/net10.0/CSharpMastery.Persistence.dll
+  CSharpMastery.Presentation -> /home/claude/csharp-mastery/src/CSharpMastery.Presentation/bin/Debug/net10.0/CSharpMastery.Presentation.dll
+  CSharpMastery.Tests -> /home/claude/csharp-mastery/tests/CSharpMastery.Tests/bin/Debug/net10.0/CSharpMastery.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.22
+Test run for /home/claude/csharp-mastery/tests/CSharpMastery.Tests/bin/Debug/net10.0/CSharpMastery.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   115, Skipped:     0, Total:   115, Duration: 1 m 9 s - CSharpMastery.Tests.dll (net10.0)
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CSharpMastery.Domain -> /home/claude/csharp-mastery/src/CSharpMastery.Domain/bin/Release/net10.0/CSharpMastery.Domain.dll
+  CSharpMastery.Content -> /home/claude/csharp-mastery/src/CSharpMastery.Content/bin/Release/net10.0/CSharpMastery.Content.dll
+  CSharpMastery.Execution -> /home/claude/csharp-mastery/src/CSharpMastery.Execution/bin/Release/net10.0/CSharpMastery.Execution.dll
+  CSharpMastery.Learning -> /home/claude/csharp-mastery/src/CSharpMastery.Learning/bin/Release/net10.0/CSharpMastery.Learning.dll
+  CSharpMastery.Persistence -> /home/claude/csharp-mastery/src/CSharpMastery.Persistence/bin/Release/net10.0/CSharpMastery.Persistence.dll
+  CSharpMastery.Presentation -> /home/claude/csharp-mastery/src/CSharpMastery.Presentation/bin/Release/net10.0/CSharpMastery.Presentation.dll
+  CSharpMastery.App -> /home/claude/csharp-mastery/src/CSharpMastery.App/bin/Release/net10.0/CSharpMastery.App.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.79

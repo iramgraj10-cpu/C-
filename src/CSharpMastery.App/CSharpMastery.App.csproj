@@ -67,4 +67,16 @@
              Targets="Publish"
              Properties="Configuration=$(Configuration);RuntimeIdentifier=$(_RunnerRid);SelfContained=true;PublishDir=$(OutDir)runner\" />
   </Target>
+
+  <!-- Al publicar (instalador o carpeta distribuible), el ejecutor también debe quedar en "runner" junto a la app. -->
+  <Target Name="PublishCodeRunnerWithApp" AfterTargets="Publish"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+    <PropertyGroup>
+      <_RunnerRid Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">win-x64</_RunnerRid>
+      <_RunnerRid Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">osx-arm64</_RunnerRid>
+    </PropertyGroup>
+    <MSBuild Projects="..\CSharpMastery.Runner\CSharpMastery.Runner.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(_RunnerRid);SelfContained=true;PublishDir=$(PublishDir)runner\" />
+  </Target>
 </Project>

@@ -36,6 +36,11 @@ public sealed partial class ModuleGroup(CurriculumModule module, IReadOnlyList<U
             var skills = Units.SelectMany(u => u.Skills).ToList();
             var withLesson = skills.Count(s => s.HasLesson);
             var provisional = skills.Count(s => s.Mastery >= MasteryLevel.ProvisionallyMastered);
+            if (skills.Count == 0)
+            {
+                return "Se trabaja desde la sección Proyectos";
+            }
+
             return withLesson == 0
                 ? $"{skills.Count} habilidades (contenido en preparación)"
                 : $"{skills.Count} habilidades · {withLesson} con lección · {provisional} dominadas al menos provisionalmente";
