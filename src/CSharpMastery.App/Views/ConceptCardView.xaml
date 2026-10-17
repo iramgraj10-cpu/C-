@@ -10,8 +10,7 @@
     <VerticalStackLayout Spacing="14">
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
             <Grid WidthRequest="60" HeightRequest="60" VerticalOptions="Center">
-                <Image Source="mascot_sleep.png" IsVisible="{Binding IsLongRead}" SemanticProperties.Description="Mascota dormida: tarjeta con bastante texto" />
-                <Image Source="mascot_main.png" IsVisible="{Binding IsLongRead, Converter={StaticResource Not}}" SemanticProperties.Description="Mascota" />
+                <Image Source="{Binding Mascot, Converter={StaticResource ImageName}}" SemanticProperties.Description="Mascota" />
             </Grid>
             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                 <HorizontalStackLayout Spacing="6">

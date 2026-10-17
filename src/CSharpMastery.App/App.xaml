@@ -26,6 +26,7 @@
             <conv:IndentMarginConverter x:Key="IndentMargin" />
             <conv:EqualsConverter x:Key="Equals" />
             <conv:AreEqualConverter x:Key="AreEqual" />
+            <conv:ImageNameConverter x:Key="ImageName" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

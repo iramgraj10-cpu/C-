@@ -47,6 +47,8 @@ public abstract partial class ItemViewModel : StepViewModel
 
     public string PurposeLabel => Labels.Purpose(Item.Purpose);
 
+    public override string Mascot => Mascots.ForThinking(Item.Id);
+
     public string Prompt => Item.Prompt;
 
     public string? Code => Item.Code;

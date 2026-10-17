@@ -15,4 +15,21 @@ public sealed class MascotTests
         Assert.False(corta.IsLongRead);
         Assert.True(larga.IsLongRead);
     }
+
+    [Fact]
+    public void El_robot_es_la_mascota_principal_y_las_fotos_salen_de_vez_en_cuando()
+    {
+        var keys = Enumerable.Range(0, 300).Select(i => $"paso-{i}").ToList();
+        var elegidas = keys.Select(k => Mascots.ForThinking(k))
+            .Concat(keys.Select(k => Mascots.ForGreeting(k)))
+            .Concat(keys.Select(k => Mascots.ForReading(k, longText: false)))
+            .ToList();
+
+        var robot = elegidas.Count(m => m == Mascots.Robot);
+        Assert.True(robot > elegidas.Count / 2, $"robot {robot} de {elegidas.Count}");
+        Assert.Contains(Mascots.Thinking, elegidas);
+        Assert.Contains(Mascots.Photo, elegidas);
+        Assert.All(keys, k => Assert.Equal(Mascots.Robot, Mascots.ForReading(k, longText: false)));
+        Assert.Contains(keys, k => Mascots.ForReading(k, longText: true) == Mascots.Sleeping);
+    }
 }

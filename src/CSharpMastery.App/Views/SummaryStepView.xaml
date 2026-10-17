@@ -5,11 +5,22 @@
              xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Views.SummaryStepView"
              x:DataType="a:SummaryStepViewModel">
-    <!-- Celebración: mascota, XP, precisión, racha y meta del día; después el detalle por habilidad. -->
+    <!-- Celebración: todas las mascotas juntas felicitando, XP, precisión, racha y meta del día; después el detalle. -->
     <VerticalStackLayout Spacing="16" Padding="0,12,0,0">
-        <Image x:Name="Mascot" Source="mascot_main.png" WidthRequest="170" HeightRequest="170" HorizontalOptions="Center"
-               SemanticProperties.Description="Mascota celebrando" />
-        <Label Text="{Binding Title}" Style="{StaticResource Title}" FontSize="28" HorizontalTextAlignment="Center" TextColor="{StaticResource Gold}" />
+        <!-- Grupo de mascotas: el robot (principal) al centro y las tres fotos alrededor. -->
+        <Grid x:Name="Crew" HeightRequest="230" WidthRequest="320" HorizontalOptions="Center"
+              SemanticProperties.Description="Todas las mascotas juntas felicitándote">
+            <Image x:Name="Sleepy" Source="mascot_sleep.png" WidthRequest="84" HeightRequest="84"
+                   HorizontalOptions="Start" VerticalOptions="End" Margin="0,0,0,8" Rotation="-8" />
+            <Image x:Name="Thinker" Source="mascot_think.png" WidthRequest="84" HeightRequest="84"
+                   HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,8" Rotation="8" />
+            <Image x:Name="Photo" Source="mascot_main.png" WidthRequest="78" HeightRequest="78"
+                   HorizontalOptions="Center" VerticalOptions="Start" />
+            <Image x:Name="Mascot" Source="mascot_party.png" WidthRequest="150" HeightRequest="150"
+                   HorizontalOptions="Center" VerticalOptions="End" />
+        </Grid>
+        <Label Text="¡Felicidades!" Style="{StaticResource Title}" FontSize="34" HorizontalTextAlignment="Center" TextColor="{StaticResource Gold}" />
+        <Label Text="{Binding Title}" Style="{StaticResource Title}" FontSize="20" HorizontalTextAlignment="Center" TextColor="{StaticResource Brand}" />
         <Label Text="{Binding ScoreText}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="16" />
 
         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">

@@ -78,6 +78,9 @@ public abstract partial class StepViewModel : ViewModelBase
     /// <summary>XP que dio este paso (para el resumen).</summary>
     public int XpEarned { get; protected set; }
 
+    /// <summary>Imagen de la mascota que acompaña el paso (ver <see cref="Mascots"/>).</summary>
+    public virtual string Mascot => Mascots.Robot;
+
     /// <summary>Si el paso ocupa toda la pantalla sin desplazamiento (tarjetas de introducción y cierre).</summary>
     public virtual bool IsCelebration => false;
 

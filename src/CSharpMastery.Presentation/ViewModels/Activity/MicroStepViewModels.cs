@@ -65,6 +65,8 @@ public sealed partial class IntroStepViewModel : MicroStepViewModel
 
     public override bool IsCelebration => true;
 
+    public override string Mascot => Mascots.ForGreeting(Step.Key);
+
     protected override Task OnPrimaryAsync() => CompleteAsync(null);
 }
 
@@ -83,6 +85,8 @@ public sealed partial class ConceptCardViewModel : MicroStepViewModel
 
     /// <summary>La tarjeta tiene bastante texto (la mascota aparece dormida, como aviso amistoso).</summary>
     public bool IsLongRead { get; }
+
+    public override string Mascot => Mascots.ForReading(Step.Key, IsLongRead);
 
     public IReadOnlyList<ContentBlockDisplay> Blocks { get; }
 
@@ -114,6 +118,8 @@ public sealed partial class ClozeViewModel : MicroStepViewModel
     }
 
     public string Prompt => _cloze.Prompt;
+
+    public override string Mascot => Mascots.ForThinking(Step.Key);
 
     public IReadOnlyList<TokenChipViewModel> Options { get; }
 
@@ -230,6 +236,8 @@ public sealed partial class ParsonsViewModel : MicroStepViewModel
 
     public string Prompt => _parsons.Prompt;
 
+    public override string Mascot => Mascots.ForThinking(Step.Key);
+
     public ObservableCollection<ParsonsSlotViewModel> Slots { get; }
 
     public ObservableCollection<ParsonsBankLineViewModel> Bank { get; }
@@ -310,6 +318,8 @@ public sealed partial class WalkthroughViewModel : MicroStepViewModel
 
     public string Title => _walk.Title;
 
+    public override string Mascot => Mascots.ForGreeting(Step.Key);
+
     public IReadOnlyList<CodeLineViewModel> Lines { get; }
 
     public string? Output => _walk.Output;
@@ -373,6 +383,8 @@ public sealed partial class SpotBugViewModel : MicroStepViewModel
     }
 
     public string Description => _bug.Description;
+
+    public override string Mascot => Mascots.ForThinking(Step.Key);
 
     public IReadOnlyList<CodeLineViewModel> Lines { get; }
 
@@ -444,6 +456,8 @@ public sealed partial class CompareCodeViewModel : MicroStepViewModel
     }
 
     public string Description => _compare.Description;
+
+    public override string Mascot => Mascots.ForThinking(Step.Key);
 
     public IReadOnlyList<CodeOptionViewModel> Options { get; }
 

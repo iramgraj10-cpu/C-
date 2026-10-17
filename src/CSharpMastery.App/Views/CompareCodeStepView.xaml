@@ -12,7 +12,7 @@
             <Label Text="¿Cuál está bien?" Style="{StaticResource Badge}" TextColor="{StaticResource RedText}" VerticalOptions="Center" />
         </HorizontalStackLayout>
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-            <Image Source="mascot_think.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota pensando" />
+            <Image Source="{Binding Mascot, Converter={StaticResource ImageName}}" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota" />
             <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,10" VerticalOptions="Center">
                 <Label Text="{Binding Description}" FontFamily="{StaticResource FontBold}" FontSize="18" />
             </Border>

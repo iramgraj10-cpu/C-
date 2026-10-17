@@ -25,8 +25,8 @@
 
     <ApplicationTitle>C# Mastery</ApplicationTitle>
     <ApplicationId>com.csharpmastery.app</ApplicationId>
-    <ApplicationDisplayVersion>0.2.1</ApplicationDisplayVersion>
-    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>0.2.2</ApplicationDisplayVersion>
+    <ApplicationVersion>4</ApplicationVersion>
 
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
@@ -43,7 +43,7 @@
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#EDE7FF" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE7FF" BaseSize="128,128" />
     <MauiFont Include="Resources\Fonts\*.ttf;Resources\Fonts\*.otf" />
-    <MauiImage Include="Resources\Images\*.png" BaseSize="200,200" />
+    <MauiImage Include="Resources\Images\*.png;Resources\Images\*.svg" BaseSize="200,200" />
   </ItemGroup>
 
   <ItemGroup>

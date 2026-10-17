@@ -1,6 +1,6 @@
 # Resultados reales de compilación y pruebas
 
-Versión 0.2.1. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
+Versión 0.2.2. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
 
 Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-test.log`, `build-android.log` y `pruebas.trx` (resultado de pruebas en formato de Visual Studio).
 
@@ -21,7 +21,7 @@ Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-tes
 Build succeeded.
     0 Warning(s)
     0 Error(s)
-Passed!  - Failed:     0, Passed:   126, Skipped:     0, Total:   126, Duration: 2 m 13 s - CSharpMastery.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   127, Skipped:     0, Total:   127, Duration: 2 m 18 s - CSharpMastery.Tests.dll (net10.0)
 ```
 
 | Clase de pruebas | Pruebas | Resultado |
@@ -38,9 +38,9 @@ Passed!  - Failed:     0, Passed:   126, Skipped:     0, Total:   126, Duration:
 | LearningServiceTests (con SQLite real) | 7 | Pasan |
 | GamificationTests (XP, racha y meta diaria) | 5 | Pasan |
 | PersistenceTests | 6 | Pasan |
-| MascotTests (cuándo aparece la mascota dormida) | 1 | Pasa |
+| MascotTests (mascota dormida en textos largos; el robot es la principal y las fotos salen de vez en cuando) | 2 | Pasan |
 | FlowTests (flujos de pantalla en ViewModels, incluida la lección interactiva) | 17 | Pasan |
-| **Total** | **126** | **126 pasan, 0 fallan** |
+| **Total** | **127** | **127 pasan, 0 fallan** |
 
 `ContentValidationTests` ejecuta 168 ejercicios de código (soluciones modelo y código inicial) con 610 casos de prueba, todas las predicciones y todos los ejemplos resueltos. `InteractiveValidationTests` revisa 350 pasos generados (53 huecos, 23 de ordenar líneas, 40 de encontrar el error): compila 206 variantes y ejecuta 77 para comprobar que ningún distractor ni intercambio de líneas da el mismo resultado que la respuesta.
 
@@ -63,10 +63,10 @@ Time Elapsed 00:02:12.42
 ```
 | Archivo | Tamaño | SHA-256 |
 |---|---|---|
-| `com.csharpmastery.app-Signed.apk` (0.2.1) | 37.7 MB | `460eb095dae3df77652c96d6f20237b1c9317670df00c10a9efdc123dbf65bfa` |
-| `com.csharpmastery.app-Signed.aab` (0.2.1) | 37.2 MB | `520f9c3980caeeb0ed9c4d6e09930f28796162fca8ffb4db9880e361bff1350c` |
+| `com.csharpmastery.app-Signed.apk` (0.2.2) | 38.3 MB | `ff9210da4944d3efb270e5ba9590b68c65105ea083e3edc040f78302113c5e75` |
+| `com.csharpmastery.app-Signed.aab` (0.2.2) | 37.8 MB | `883677fc5f67346a87ddbc12bdfcde46f4fe7bf46688cb26c571644c7de71a04` |
 
-El APK incluye las fuentes Nunito y Material Icons Round (`assets/`) y las tres mascotas (principal, dormida y pensando) en todas las densidades (`res/drawable-*/mascot_*.png`).
+El APK incluye las fuentes Nunito y Material Icons Round (`assets/`) el robot (mascota principal, normal y de fiesta) y las tres fotos (de frente, dormida y pensando) en todas las densidades (`res/drawable-*/mascot_*.png`).
 
 `apksigner verify` confirma la firma con el certificado de depuración (`CN=Android Debug`). Manifiesto final: `minSdkVersion 24`, `targetSdkVersion 36`, sin permiso de Internet. El APK incluye las bibliotecas compiladas AOT de la app y del contenido para arm64.
 

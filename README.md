@@ -4,7 +4,7 @@ Aplicación nativa (.NET MAUI) para aprender C# desde cero hasta un nivel profes
 
 Es una aplicación de estudio personal: funciona sin conexión, guarda el progreso en una base SQLite local en el propio dispositivo y no tiene servidor, cuentas ni telemetría. Ninguna función esencial usa servicios de IA de pago.
 
-## Estado de esta versión (0.2.1)
+## Estado de esta versión (0.2.2)
 
 | Área | Estado |
 |---|---|
@@ -15,7 +15,7 @@ Es una aplicación de estudio personal: funciona sin conexión, guarda el progre
 | Motor de ejecución | Proceso separado con límites (escritorio). En Android/iOS no hay compilador: autoevaluación marcada como no verificada |
 | Lecciones | Interactivas: tarjetas cortas, completar código, ordenar líneas, recorrido del ejemplo y encontrar el error, validados con el motor real (ADR 0007) |
 | Motivación | XP por acertar, racha de días, meta diaria y celebración al terminar |
-| Pruebas automatizadas | 126 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
+| Pruebas automatizadas | 127 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
 | Diseño | Nuevo en 0.2.0; compila, pero no se ha visto en pantalla (no había emulador) |
 | Compilación verificada | Bibliotecas, XAML en Release y paquete Android (APK y AAB) en Linux |
 | Sin verificar | Windows, iOS y macOS (no hay herramientas para esas plataformas en el entorno donde se construyó) |
@@ -60,7 +60,7 @@ scripts/                       Compilación y pruebas
 Requisitos: .NET SDK 10 y, para la app, el workload de MAUI (`dotnet workload install maui`, o `maui-android` en Linux).
 
 ```bash
-./scripts/build-and-test.sh          # bibliotecas + 115 pruebas + XAML en Release
+./scripts/build-and-test.sh          # bibliotecas + pruebas + XAML en Release
 ./scripts/build-android.sh           # APK y AAB en Release (requiere Android SDK y JDK 17+)
 ```
 

@@ -322,3 +322,12 @@ public sealed class AreEqualConverter : IMultiValueConverter
 
     public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture) => throw new NotSupportedException();
 }
+
+/// <summary>Nombre de archivo de imagen (por ejemplo, la mascota del paso) → ImageSource.</summary>
+public sealed class ImageNameConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is string name && name.Length > 0 ? ImageSource.FromFile(name) : null;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+}
