@@ -1,6 +1,6 @@
 # Resultados reales de compilación y pruebas
 
-Versión 0.2.0. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
+Versión 0.2.1. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
 
 Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-test.log`, `build-android.log` y `pruebas.trx` (resultado de pruebas en formato de Visual Studio).
 
@@ -21,7 +21,7 @@ Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-tes
 Build succeeded.
     0 Warning(s)
     0 Error(s)
-Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 2 m 18 s - CSharpMastery.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   126, Skipped:     0, Total:   126, Duration: 2 m 13 s - CSharpMastery.Tests.dll (net10.0)
 ```
 
 | Clase de pruebas | Pruebas | Resultado |
@@ -38,8 +38,9 @@ Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration:
 | LearningServiceTests (con SQLite real) | 7 | Pasan |
 | GamificationTests (XP, racha y meta diaria) | 5 | Pasan |
 | PersistenceTests | 6 | Pasan |
+| MascotTests (cuándo aparece la mascota dormida) | 1 | Pasa |
 | FlowTests (flujos de pantalla en ViewModels, incluida la lección interactiva) | 17 | Pasan |
-| **Total** | **125** | **125 pasan, 0 fallan** |
+| **Total** | **126** | **126 pasan, 0 fallan** |
 
 `ContentValidationTests` ejecuta 168 ejercicios de código (soluciones modelo y código inicial) con 610 casos de prueba, todas las predicciones y todos los ejemplos resueltos. `InteractiveValidationTests` revisa 350 pasos generados (53 huecos, 23 de ordenar líneas, 40 de encontrar el error): compila 206 variantes y ejecuta 77 para comprobar que ningún distractor ni intercambio de líneas da el mismo resultado que la respuesta.
 
@@ -54,19 +55,18 @@ Build succeeded.
 ```
 
 ## 3. Paquete Android (`scripts/build-android.sh`)
-(Tiempo de la compilación completa; `evidencia/build-android.log` es una recompilación posterior sin cambios, por eso tarda segundos.)
 ```
 Build succeeded.
     0 Warning(s)
     0 Error(s)
-Time Elapsed 00:01:59.99
+Time Elapsed 00:02:12.42
 ```
 | Archivo | Tamaño | SHA-256 |
 |---|---|---|
-| `com.csharpmastery.app-Signed.apk` (0.2.0) | 35.0 MB | `8a7ae9d98f9b4d2ca29f29aec1e5186a1a288f3fe039e05d146b10ead2d8a35a` |
-| `com.csharpmastery.app-Signed.aab` (0.2.0) | 34.5 MB | `53b3071386ada8f0d5418fa29bdaae682f2a04d20be18d9c8826ca7b2f88d4bc` |
+| `com.csharpmastery.app-Signed.apk` (0.2.1) | 37.7 MB | `460eb095dae3df77652c96d6f20237b1c9317670df00c10a9efdc123dbf65bfa` |
+| `com.csharpmastery.app-Signed.aab` (0.2.1) | 37.2 MB | `520f9c3980caeeb0ed9c4d6e09930f28796162fca8ffb4db9880e361bff1350c` |
 
-El APK incluye las fuentes Nunito y Material Icons Round (`assets/`) y la mascota en todas las densidades (`res/drawable-*/mascot_*.png`).
+El APK incluye las fuentes Nunito y Material Icons Round (`assets/`) y las tres mascotas (principal, dormida y pensando) en todas las densidades (`res/drawable-*/mascot_*.png`).
 
 `apksigner verify` confirma la firma con el certificado de depuración (`CN=Android Debug`). Manifiesto final: `minSdkVersion 24`, `targetSdkVersion 36`, sin permiso de Internet. El APK incluye las bibliotecas compiladas AOT de la app y del contenido para arm64.
 
@@ -80,6 +80,6 @@ Para un paquete de distribución conviene recompilar con el SDK oficial (Android
 | Qué | Por qué |
 |---|---|
 | Ejecutar el APK | No hay emulador ni dispositivo en el entorno |
-| Compilar para Windows | Requiere Windows (`net10.0-windows`) |
+| Compilar para Windows | Requiere Windows: el compilador XAML de WinUI falla en Linux (probado). Se preparó `.github/workflows/windows.yml` para compilarla en una máquina Windows de GitHub Actions |
 | Compilar para iOS y macOS | Requiere macOS con Xcode |
 | Probar la interfaz visualmente (incluido el diseño nuevo de la 0.2.0) | Sin pantalla ni emulador; los flujos se probaron a nivel de ViewModel y el XAML compila con bindings verificados |

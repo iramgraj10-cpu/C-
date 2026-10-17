@@ -16,7 +16,7 @@ La primera versión mostraba cada lección como un texto largo seguido de ejerci
 2. **Nada ambiguo llega al estudiante.** `InteractiveValidationTests` ejecuta con el motor real cada distractor de cada hueco y cada intercambio de líneas vecinas en cada ejercicio de ordenar: el distractor debe no compilar o cambiar la salida, y el intercambio debe cambiar el comportamiento. Lo que no cumple se excluye por clave en `InteractiveExclusions.cs`.
 3. **Un pie fijo «Comprobar / Continuar»** en todos los pasos, con una franja verde o roja que explica la respuesta. Todos los pasos derivan de `StepViewModel`.
 4. **Motivación ligada a practicar, no a leer.** XP por acertar (paso corto 5, pregunta 10, código 20, lección 15, sin errores +10), racha de días con práctica y meta diaria configurable (20, 50, 100 o 150 XP). Se guardan en los ajustes, así que viajan con la exportación.
-5. **Interfaz con identidad propia**, inspirada en apps de idiomas pero sin copiar su marca: violeta como color principal, botones en relieve (`ChunkyButton`), tipografía Nunito (OFL), íconos Material Icons Round (Apache 2.0), una mascota propia (robot con «#») y un camino de lecciones en zigzag.
+5. **Interfaz con identidad propia**, inspirada en apps de idiomas pero sin copiar su marca: violeta como color principal, botones en relieve (`ChunkyButton`), tipografía Nunito (OFL), íconos Material Icons Round (Apache 2.0), una mascota (en 0.2.1 se reemplazó el robot por tres fotos del autor: la principal, una dormida para las tarjetas con mucho texto y una pensando junto a cada pregunta o ejercicio) y un camino de lecciones en zigzag.
 
 ## Consecuencias
 - Leer los apuntes completos sigue disponible en la portada de cada lección, pero no da XP.
