@@ -310,6 +310,10 @@ internal static class U03Diseno
                 No("Hay que poner ! también en Correo.", "Más ! solo esconde más el problema.", ErrorCategory.NullReference),
             ],
             code: """
+                Dictionary<int, Usuario> usuarios = new() { [1] = new("ana@correo.com") };
+                Console.WriteLine(CorreoDe(usuarios, 1)); // ana@correo.com
+                Console.WriteLine(CorreoDe(usuarios, 2)); // NullReferenceException
+
                 string CorreoDe(Dictionary<int, Usuario> usuarios, int id)
                 {
                     Usuario usuario = usuarios.GetValueOrDefault(id)!;
@@ -560,6 +564,7 @@ internal static class U03Diseno
                 No("Ninguno: es un error de aritmética.", "La aritmética es correcta; el problema es el diseño de la jerarquía.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                // Fragmento: Rectangulo y Cuadrado están definidos en otra parte.
                 void Ampliar(Rectangulo r)
                 {
                     r.Ancho = 5;

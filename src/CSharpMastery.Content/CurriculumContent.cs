@@ -13,6 +13,9 @@ public static class CurriculumContent
     /// <summary>Claves de pasos interactivos generados que no deben usarse (ver <see cref="InteractiveExclusionList"/>).</summary>
     public static IReadOnlySet<string> InteractiveExclusions => InteractiveExclusionList.Keys;
 
+    /// <summary>Salida real de un bloque de código de la explicación (ver <see cref="CodeOutputs"/>).</summary>
+    public static string? OutputOf(string code) => CodeOutputs.For(code);
+
     public static CurriculumCatalog Create()
     {
         var registry = new ContentRegistry();

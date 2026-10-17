@@ -104,6 +104,7 @@ internal static class U01ErroresGenericos
                 No("int.Parse nunca lanza excepciones.", "Lanza FormatException y OverflowException.", ErrorCategory.ParsingFormat),
             ],
             code: """
+                // Fragmento: lineas es un string[] leído de un archivo.
                 int total = 0;
                 foreach (string linea in lineas)
                 {

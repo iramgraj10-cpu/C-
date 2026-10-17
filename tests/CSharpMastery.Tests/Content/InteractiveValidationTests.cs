@@ -29,7 +29,7 @@ public sealed class InteractiveValidationTests(ITestOutputHelper output)
 
     private static IEnumerable<(Skill Skill, IReadOnlyList<MicroStep> Steps)> AllFlows()
     {
-        var builder = new LessonFlowBuilder(CurriculumContent.InteractiveExclusions);
+        var builder = new LessonFlowBuilder(CurriculumContent.InteractiveExclusions, CurriculumContent.OutputOf);
         foreach (var skill in CurriculumContent.Catalog.OrderedSkills.Where(s => s.Lesson is not null))
         {
             var explanation = builder.Explanation(skill, skill.Lesson!);
@@ -57,6 +57,7 @@ public sealed class InteractiveValidationTests(ITestOutputHelper output)
 
             foreach (var step in steps.OfType<ParsonsStep>())
             {
+                Assert.False(string.IsNullOrWhiteSpace(step.Output), $"{skill.Id}: ordenar sin salida esperada");
                 Assert.True(step.IsCorrect(step.MovableIndexes), skill.Id);
                 Assert.False(step.IsCorrect(step.BankOrder), $"{skill.Id}: el banco ya está en orden");
                 Assert.Equal(string.Join("\n", step.Lines.Select(l => l.Text)), step.Assemble(step.MovableIndexes));
@@ -64,6 +65,7 @@ public sealed class InteractiveValidationTests(ITestOutputHelper output)
 
             foreach (var step in steps.OfType<ClozeStep>())
             {
+                Assert.StartsWith("Completa el código para que muestre:\n", step.Prompt);
                 Assert.Contains(step.Answer, step.Options);
                 Assert.Equal(step.Options.Count, step.Options.Distinct().Count());
             }
@@ -72,6 +74,75 @@ public sealed class InteractiveValidationTests(ITestOutputHelper output)
         output.WriteLine($"Pasos generados: {AllFlows().Sum(f => f.Steps.Count)}; huecos: {AllFlows().Sum(f => f.Steps.Count(s => s is ClozeStep))}; " +
                          $"ordenar: {AllFlows().Sum(f => f.Steps.Count(s => s is ParsonsStep))}; tocar el error: {AllFlows().Sum(f => f.Steps.Count(s => s is SpotBugStep))}");
     }
+
+    /// <summary>
+    /// Los huecos de la explicación muestran la salida del programa; esa salida se toma de <see cref="CodeOutputData"/>,
+    /// que debe coincidir con la ejecución real. Con UPDATE_CODE_OUTPUTS=1 la prueba regenera el archivo
+    /// (scripts/update-code-outputs.sh).
+    /// </summary>
+    [Fact]
+    public void Las_salidas_de_los_bloques_de_codigo_estan_registradas_y_al_dia()
+    {
+        var expected = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var skill in CurriculumContent.Catalog.OrderedSkills.Where(s => s.Lesson is not null))
+        {
+            foreach (var block in skill.Lesson!.Explanation.OfType<CodeBlock>().Where(b => !LessonFlowBuilder.IsFragment(b)))
+            {
+                if (block.Code.Contains("ReadLine", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var run = InProcessRunner.RunProgram(block.Code);
+                if (run.Status != ExecutionStatus.Completed || run.Tests.Single() is not { Failure: null, TimedOut: false } test)
+                {
+                    continue;
+                }
+
+                var text = test.Output.Replace("\r\n", "\n").TrimEnd();
+                if (text.Length > 0)
+                {
+                    expected[CodeOutputs.Key(block.Code)] = text;
+                }
+            }
+        }
+
+        if (Environment.GetEnvironmentVariable("UPDATE_CODE_OUTPUTS") == "1")
+        {
+            WriteOutputData(expected);
+            return;
+        }
+
+        var missing = expected.Where(e => !CodeOutputData.ByKey.TryGetValue(e.Key, out var v) || v != e.Value).Select(e => e.Key).ToList();
+        var stale = CodeOutputData.ByKey.Keys.Where(k => !expected.ContainsKey(k)).ToList();
+        Assert.True(missing.Count == 0 && stale.Count == 0,
+            $"Salidas desactualizadas ({missing.Count} faltan o cambiaron, {stale.Count} sobran): ejecuta scripts/update-code-outputs.sh");
+    }
+
+    private static void WriteOutputData(IReadOnlyDictionary<string, string> outputs)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !Directory.Exists(Path.Combine(dir.FullName, "src", "CSharpMastery.Content")))
+        {
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(dir);
+        var sb = new System.Text.StringBuilder();
+        sb.Append("namespace CSharpMastery.Content;\n\n");
+        sb.Append("/// <summary>Generado por scripts/update-code-outputs.sh: no editar a mano.</summary>\n");
+        sb.Append("public static class CodeOutputData\n{\n");
+        sb.Append("    public static readonly IReadOnlyDictionary<string, string> ByKey = new Dictionary<string, string>(StringComparer.Ordinal)\n    {\n");
+        foreach (var (key, value) in outputs)
+        {
+            sb.Append($"        [\"{key}\"] = \"{Escape(value)}\",\n");
+        }
+
+        sb.Append("    };\n}\n");
+        File.WriteAllText(Path.Combine(dir!.FullName, "src", "CSharpMastery.Content", "CodeOutputData.cs"), sb.ToString());
+    }
+
+    private static string Escape(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r");
 
     [Fact]
     public async Task Los_distractores_y_los_ordenes_alternativos_no_son_equivalentes()

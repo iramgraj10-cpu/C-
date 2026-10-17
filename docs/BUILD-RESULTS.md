@@ -1,6 +1,6 @@
 # Resultados reales de compilación y pruebas
 
-Versión 0.2.2. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
+Versión 0.2.3. Fecha: 17 de octubre de 2026 (UTC). Entorno: contenedor Linux x86_64 (kernel 6.18), sin pantalla, sin Windows ni macOS.
 
 Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-test.log`, `build-android.log` y `pruebas.trx` (resultado de pruebas en formato de Visual Studio).
 
@@ -21,13 +21,13 @@ Los registros completos están en [`docs/evidencia/`](evidencia): `build-and-tes
 Build succeeded.
     0 Warning(s)
     0 Error(s)
-Passed!  - Failed:     0, Passed:   127, Skipped:     0, Total:   127, Duration: 2 m 18 s - CSharpMastery.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   130, Skipped:     0, Total:   130, Duration: 2 m 16 s - CSharpMastery.Tests.dll (net10.0)
 ```
 
 | Clase de pruebas | Pruebas | Resultado |
 |---|---|---|
-| ContentValidationTests (todo el contenido ejecutado de verdad) | 7 | Pasan |
-| InteractiveValidationTests (cada hueco y cada orden de líneas, con el motor real) | 1 | Pasa |
+| ContentValidationTests (todo el contenido ejecutado de verdad; enunciados que dicen «no compila» y fragmentos con nombres sin declarar) | 9 | Pasan |
+| InteractiveValidationTests (cada hueco y cada orden de líneas con el motor real; salidas de los bloques de código al día) | 3 | Pasan |
 | ExecutionTests (motor real en proceso separado) | 25 | Pasan |
 | FormattingTests | 6 | Pasan |
 | SchedulerTests | 8 | Pasan |
@@ -39,10 +39,10 @@ Passed!  - Failed:     0, Passed:   127, Skipped:     0, Total:   127, Duration:
 | GamificationTests (XP, racha y meta diaria) | 5 | Pasan |
 | PersistenceTests | 6 | Pasan |
 | MascotTests (mascota dormida en textos largos; el robot es la principal y las fotos salen de vez en cuando) | 2 | Pasan |
-| FlowTests (flujos de pantalla en ViewModels, incluida la lección interactiva) | 17 | Pasan |
-| **Total** | **127** | **127 pasan, 0 fallan** |
+| FlowTests (flujos de pantalla en ViewModels, incluida la lección interactiva) | 16 | Pasan |
+| **Total** | **130** | **130 pasan, 0 fallan** |
 
-`ContentValidationTests` ejecuta 168 ejercicios de código (soluciones modelo y código inicial) con 610 casos de prueba, todas las predicciones y todos los ejemplos resueltos. `InteractiveValidationTests` revisa 350 pasos generados (53 huecos, 23 de ordenar líneas, 40 de encontrar el error): compila 206 variantes y ejecuta 77 para comprobar que ningún distractor ni intercambio de líneas da el mismo resultado que la respuesta.
+`ContentValidationTests` ejecuta 168 ejercicios de código (soluciones modelo y código inicial) con 610 casos de prueba, todas las predicciones y todos los ejemplos resueltos. `InteractiveValidationTests` revisa 350 pasos generados (53 huecos, 23 de ordenar líneas, 41 de encontrar el error; cada hueco y cada ejercicio de ordenar muestra la salida que debe producir el programa, tomada de su ejecución real): compila 206 variantes y ejecuta 77 para comprobar que ningún distractor ni intercambio de líneas da el mismo resultado que la respuesta.
 
 Una ejecución anterior falló una vez en `Las_predicciones_coinciden_con_la_ejecucion_real`: un hilo de una ejecución terminada por tiempo seguía escribiendo en la consola de la siguiente (solo ocurre con el ejecutor en proceso que usan las pruebas). Se corrigió con una consola por hilo de ejecución (`Runner/ConsoleRoute.cs`); la ejecución registrada arriba es posterior a la corrección.
 
@@ -63,8 +63,8 @@ Time Elapsed 00:02:12.42
 ```
 | Archivo | Tamaño | SHA-256 |
 |---|---|---|
-| `com.csharpmastery.app-Signed.apk` (0.2.2) | 38.3 MB | `ff9210da4944d3efb270e5ba9590b68c65105ea083e3edc040f78302113c5e75` |
-| `com.csharpmastery.app-Signed.aab` (0.2.2) | 37.8 MB | `883677fc5f67346a87ddbc12bdfcde46f4fe7bf46688cb26c571644c7de71a04` |
+| `com.csharpmastery.app-Signed.apk` (0.2.3) | 38.0 MB | `5673b2f1e516715a695877522d0f5037b9bad355b3217ee1af91183c6b0b5db9` |
+| `com.csharpmastery.app-Signed.aab` (0.2.3) | 37.5 MB | `c412b1d1410b590c43bd52f1b847a2c3c96d057d7351e579f5e50813bd964a17` |
 
 El APK incluye las fuentes Nunito y Material Icons Round (`assets/`) el robot (mascota principal, normal y de fiesta) y las tres fotos (de frente, dormida y pensando) en todas las densidades (`res/drawable-*/mascot_*.png`).
 

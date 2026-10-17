@@ -7,8 +7,10 @@ namespace CSharpMastery.Learning.Interactive;
 /// el ejemplo resuelto recorrido línea a línea, un ejercicio de ordenar líneas y la búsqueda del error habitual.
 /// Es determinista: la misma lección produce siempre los mismos pasos, y las claves en <c>exclusions</c>
 /// (huecos u órdenes que la validación encontró ambiguos) se saltan.
+/// <c>outputs</c> da la salida real de un bloque de código: un hueco solo se genera si se puede mostrar qué debe
+/// imprimir el programa, porque sin eso una ficha que compila y cambia el resultado también sería válida.
 /// </summary>
-public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
+public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null, Func<string, string?>? outputs = null)
 {
     /// <summary>Máximo de huecos por lección en la explicación.</summary>
     public const int MaxExplanationClozes = 2;
@@ -33,7 +35,8 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
             }
 
             var code = cards[i].OfType<CodeBlock>().FirstOrDefault(b => !IsFragment(b));
-            if (code is not null && Cloze(skill.Id, $"card{i}", code.Code, null) is { } cloze)
+            if (code is not null && outputs?.Invoke(code.Code) is { Length: > 0 } output &&
+                Cloze(skill.Id, $"card{i}", code.Code, output) is { } cloze)
             {
                 steps.Add(cloze);
                 clozes++;
@@ -52,7 +55,8 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
             new WalkthroughStep($"{skill.Id}|walk", example.Title, example.Code, example.Notes, example.ExpectedOutput),
         };
 
-        if (includeCloze && Cloze(skill.Id, "example", example.Code, example.ExpectedOutput) is { } cloze)
+        if (includeCloze && !string.IsNullOrWhiteSpace(example.ExpectedOutput) &&
+            Cloze(skill.Id, "example", example.Code, example.ExpectedOutput) is { } cloze)
         {
             steps.Add(cloze);
         }
@@ -105,7 +109,7 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
         return cards;
     }
 
-    public ClozeStep? Cloze(string skillId, string source, string code, string? output)
+    public ClozeStep? Cloze(string skillId, string source, string code, string output)
     {
         foreach (var candidate in ClozeGenerator.Candidates(code, skillId + source))
         {
@@ -117,9 +121,7 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
 
             var options = candidate.Distractors.Append(candidate.Answer)
                 .OrderBy(o => ClozeGenerator.StableHash(key + o)).ToList();
-            var prompt = output is null
-                ? "Completa el código que acabas de ver."
-                : $"Completa el código para que muestre:\n{output.TrimEnd()}";
+            var prompt = $"Completa el código para que muestre:\n{output.TrimEnd()}";
             var explanation = $"La pieza correcta es «{candidate.Answer}». " + ClozeHint(candidate.Group);
             return new ClozeStep(key, prompt, code, candidate.Start, candidate.Answer, options, explanation);
         }
@@ -138,6 +140,12 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
 
     public ParsonsStep? Parsons(string skillId, string code, string? output)
     {
+        // Sin la salida esperada, varios órdenes podrían parecer correctos: no se genera el ejercicio.
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            return null;
+        }
+
         var raw = code.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
         var candidates = raw.Select((text, i) => (text, i)).Where(x => IsMovable(x.text)).Select(x => x.i).ToList();
         if (candidates.Count < 3)
@@ -176,9 +184,7 @@ public sealed class LessonFlowBuilder(IReadOnlySet<string>? exclusions = null)
             }
 
             var bank = Shuffle(correct, key);
-            var prompt = output is null
-                ? "Ordena las líneas para reconstruir el ejemplo."
-                : $"Ordena las líneas para que el programa muestre:\n{output.TrimEnd()}";
+            var prompt = $"Ordena las líneas para que el programa muestre:\n{output.TrimEnd()}";
             return new ParsonsStep(key, prompt, lines, bank, output);
         }
 

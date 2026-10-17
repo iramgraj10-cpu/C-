@@ -35,7 +35,7 @@ public sealed partial class ActivityViewModel(
     private StudySession? _session;
     private Assessment? _assessment;
     private readonly List<MicroStepViewModel> _micro = [];
-    private readonly LessonFlowBuilder _flow = new(CurriculumContent.InteractiveExclusions);
+    private readonly LessonFlowBuilder _flow = new(CurriculumContent.InteractiveExclusions, CurriculumContent.OutputOf);
     private int _position;
     private int _microIndex;
     private bool _plannedNoticeShown;

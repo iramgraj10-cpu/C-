@@ -317,6 +317,8 @@ internal static class U03Texto
                 No("Critica debería escribirse en mayúsculas.", "El nombre es correcto; falta el caso.", ErrorCategory.Syntax),
             ],
             code: """
+                Console.WriteLine(Describir(Prioridad.Critica)); // Desconocida
+
                 string Describir(Prioridad p) => p switch
                 {
                     Prioridad.Baja => "Puede esperar",

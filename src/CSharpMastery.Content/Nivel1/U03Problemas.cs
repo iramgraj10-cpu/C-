@@ -706,7 +706,7 @@ internal static class U03Problemas
                     "n=8: log=3, lineal=8, cuadrático=64"),
                 new CommonMistake(
                     "Recorrer todo de nuevo en cada paso cuando bastaría con recordar un resultado.",
-                    "for (int i = 0; i < n; i++)\n{\n    long suma = 0;\n    for (int j = 0; j <= i; j++) suma += datos[j];\n    Console.WriteLine(suma);\n}",
+                    "int[] datos = [3, 1, 4];\nfor (int i = 0; i < datos.Length; i++)\n{\n    long suma = 0;\n    for (int j = 0; j <= i; j++) suma += datos[j];\n    Console.WriteLine(suma);\n}",
                     "Cada suma parcial se recalcula desde cero: n² operaciones. Basta con ir acumulando.",
                     "int[] datos = [3, 1, 4];\nlong suma = 0;\nfor (int i = 0; i < datos.Length; i++)\n{\n    suma += datos[i];\n    Console.WriteLine(suma);\n}"),
                 "n1.complejidad.pred1", "n1.complejidad.guiado", "n1.complejidad.indep", "n1.complejidad.app",

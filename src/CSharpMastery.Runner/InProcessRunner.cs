@@ -83,6 +83,16 @@ public static class InProcessRunner
         }
     }
 
+    /// <summary>Errores de compilación del programa, sin ejecutarlo.</summary>
+    public static IReadOnlyList<CompilerDiagnostic> CompileErrors(string code)
+    {
+        lock (Gate)
+        {
+            var compilation = CodeCompiler.Compile(new ExecutionRequest { Code = code, Mode = CodeMode.Program });
+            return compilation.Diagnostics.Where(d => d.Severity == "Error").ToList();
+        }
+    }
+
     public static ExecutionResult RunProgram(string code, string? stdin = null) =>
         Execute(new ExecutionRequest { Code = code, Mode = CodeMode.Program, Stdin = stdin });
 }

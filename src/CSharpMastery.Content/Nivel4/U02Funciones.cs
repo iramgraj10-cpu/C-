@@ -620,6 +620,7 @@ internal static class U02Funciones
                 No("Falta un Select después de OrderBy.", "El problema es que el resultado no se usa.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                // Fragmento: Producto y ObtenerProductos() están definidos en otra parte.
                 List<Producto> productos = ObtenerProductos();
                 productos.OrderBy(p => p.Precio);
                 foreach (Producto p in productos) Console.WriteLine(p);
@@ -851,7 +852,7 @@ internal static class U02Funciones
             difficulty: 2);
 
         r.Short("n4.ienumerable-iqueryable.pred2", s, ItemPurpose.Prediction,
-            "¿Cuántas veces se muestra «evaluando» en total?",
+            "¿Qué número muestra este programa? (cuántas veces se ejecuta la lambda del Select en total)",
             "La consulta es diferida y no se guarda: cada recorrido (Count y después el foreach) vuelve a ejecutar el Select sobre los 3 elementos. 3 + 3 = 6. Con ToList() se evaluaría una sola vez.",
             ["6"], match: AnswerMatch.Number,
             code: """
@@ -901,6 +902,7 @@ internal static class U02Funciones
                 No("Falta un OrderBy.", "Puede ser necesario para Take, pero no explica la lentitud.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                // Fragmento: contexto es la conexión a la base de datos (Entity Framework).
                 var recientes = contexto.Pedidos
                     .AsEnumerable()
                     .Where(p => p.Fecha > hace30Dias)
@@ -1117,7 +1119,7 @@ internal static class U02Funciones
                     "Consulta creada\n  revisando 5\n  revisando 12\nPrimero: 12\n  revisando 5\n  revisando 12\n  revisando 8\n  revisando 20\nTotal: 2"),
                 new CommonMistake(
                     "Recorrer varias veces una consulta costosa.",
-                    "var activos = usuarios.Where(EsActivo);\nif (activos.Any())\n    Console.WriteLine($\"{activos.Count()} activos, primero {activos.First()}\");",
+                    "string[] usuarios = [\"ana\", \"luis\"];\nIEnumerable<string> activos = usuarios.Where(u => u.Length > 3);\nif (activos.Any())\n    Console.WriteLine($\"{activos.Count()} activos, primero {activos.First()}\");",
                     "La consulta se ejecuta tres veces. Si EsActivo es costoso o el origen es una base de datos, se repite todo el trabajo.",
                     "string[] usuarios = [\"ana\", \"luis\"];\nList<string> activos = usuarios.Where(u => u.Length > 3).ToList();\nif (activos.Count > 0)\n    Console.WriteLine($\"{activos.Count} activos, primero {activos[0]}\");"),
                 "n4.ienumerable-iqueryable.pred1", "n4.ienumerable-iqueryable.guiado", "n4.ienumerable-iqueryable.indep", "n4.ienumerable-iqueryable.app",
@@ -1206,6 +1208,13 @@ internal static class U02Funciones
                 No("Falta un yield break antes del throw.", "No cambiaría el momento de la validación.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                IEnumerable<int> numeros = Rango(0, 10, 0); // aquí todavía no lanza
+                Console.WriteLine("Rango creado");
+                foreach (int n in numeros) // la excepción aparece aquí
+                {
+                    Console.WriteLine(n);
+                }
+
                 IEnumerable<int> Rango(int desde, int hasta, int paso)
                 {
                     if (paso == 0) throw new ArgumentOutOfRangeException(nameof(paso));

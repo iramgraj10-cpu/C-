@@ -696,7 +696,7 @@ internal static class U01Decisiones
                     "95 → A\n83 → B\n70 → C\n40 → F"),
                 new CommonMistake(
                     "Olvidar break en una sección case de la instrucción switch.",
-                    "switch (opcion)\n{\n    case 1:\n        Console.WriteLine(\"Uno\");\n    case 2:\n        Console.WriteLine(\"Dos\");\n        break;\n}",
+                    "int opcion = 1;\nswitch (opcion)\n{\n    case 1:\n        Console.WriteLine(\"Uno\");\n    case 2:\n        Console.WriteLine(\"Dos\");\n        break;\n}",
                     "C# no permite pasar de una sección con instrucciones a la siguiente (CS0163). Cada sección debe terminar con break, return o throw.",
                     "int opcion = 1;\nswitch (opcion)\n{\n    case 1:\n        Console.WriteLine(\"Uno\");\n        break;\n    case 2:\n        Console.WriteLine(\"Dos\");\n        break;\n}"),
                 "n1.switch.pred1", "n1.switch.guiado", "n1.switch.indep", "n1.switch.app",

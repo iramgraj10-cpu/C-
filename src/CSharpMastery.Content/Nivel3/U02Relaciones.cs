@@ -738,6 +738,7 @@ internal static class U02Relaciones
                 No("Guardar el tipo en un string y usar switch.", "Mismo problema, con menos ayuda del compilador.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                // Fragmento: Empleado, Vendedor, Gerente y la lista empleados están definidos en otra parte.
                 decimal total = 0;
                 foreach (Empleado e in empleados)
                 {

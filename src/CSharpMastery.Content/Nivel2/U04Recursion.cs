@@ -95,6 +95,8 @@ internal static class U04Recursion
                 No("Debe devolver long en lugar de int.", "Eso ayudaría con números grandes, pero no evita la recursión infinita.", ErrorCategory.TypeMismatch),
             ],
             code: """
+                Console.WriteLine(Factorial(5));
+
                 int Factorial(int n)
                 {
                     if (n <= 1) return 1;

@@ -4,7 +4,7 @@ Aplicación nativa (.NET MAUI) para aprender C# desde cero hasta un nivel profes
 
 Es una aplicación de estudio personal: funciona sin conexión, guarda el progreso en una base SQLite local en el propio dispositivo y no tiene servidor, cuentas ni telemetría. Ninguna función esencial usa servicios de IA de pago.
 
-## Estado de esta versión (0.2.2)
+## Estado de esta versión (0.2.3)
 
 | Área | Estado |
 |---|---|
@@ -15,7 +15,7 @@ Es una aplicación de estudio personal: funciona sin conexión, guarda el progre
 | Motor de ejecución | Proceso separado con límites (escritorio). En Android/iOS no hay compilador: autoevaluación marcada como no verificada |
 | Lecciones | Interactivas: tarjetas cortas, completar código, ordenar líneas, recorrido del ejemplo y encontrar el error, validados con el motor real (ADR 0007) |
 | Motivación | XP por acertar, racha de días, meta diaria y celebración al terminar |
-| Pruebas automatizadas | 127 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
+| Pruebas automatizadas | 130 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
 | Diseño | Nuevo en 0.2.0; compila, pero no se ha visto en pantalla (no había emulador) |
 | Compilación verificada | Bibliotecas, XAML en Release y paquete Android (APK y AAB) en Linux |
 | Sin verificar | Windows, iOS y macOS (no hay herramientas para esas plataformas en el entorno donde se construyó) |
@@ -63,6 +63,8 @@ Requisitos: .NET SDK 10 y, para la app, el workload de MAUI (`dotnet workload in
 ./scripts/build-and-test.sh          # bibliotecas + pruebas + XAML en Release
 ./scripts/build-android.sh           # APK y AAB en Release (requiere Android SDK y JDK 17+)
 ```
+
+Si cambias el código o el texto de una lección, ejecuta después `./scripts/update-code-outputs.sh` (registra la salida real de cada bloque de código, que los ejercicios de completar muestran en el enunciado) y `./scripts/update-interactive-exclusions.sh` (descarta huecos u órdenes ambiguos). Las pruebas fallan si alguno de los dos quedó desactualizado.
 
 En Windows, con Visual Studio 2022/2026 y el workload de MAUI, abrir `CSharpMastery.sln` y ejecutar el proyecto `CSharpMastery.App` con el destino Windows. El empaquetado está en [`docs/PACKAGING.md`](docs/PACKAGING.md).
 

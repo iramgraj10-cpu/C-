@@ -518,7 +518,7 @@ internal static class U01Metodos
             ]);
 
         r.Choice("n2.alcance.bug1", s, ItemPurpose.BugFinding,
-            "Este programa quiere contar los números pares, pero siempre muestra 0 (o 1). ¿Cuál es el error?",
+            "Este programa quiere contar los números pares (hay 3), pero el conteo nunca pasa de 1: muestra 1, 1, 0, 1. ¿Cuál es el error?",
             "contador se declara dentro del bucle, así que se crea de nuevo (con 0) en cada vuelta. Tampoco existe después del bucle; hay que declararlo antes del for.",
             [
                 Ok("contador se declara dentro del bucle y se reinicia en cada vuelta.", "Correcto: decláralo antes del bucle."),
@@ -531,6 +531,7 @@ internal static class U01Metodos
                 {
                     int contador = 0;
                     if (n % 2 == 0) contador++;
+                    Console.WriteLine(contador);
                 }
                 """,
             targets: [ErrorCategory.Scope]);

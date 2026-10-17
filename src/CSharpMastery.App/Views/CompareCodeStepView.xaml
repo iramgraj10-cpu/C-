@@ -17,7 +17,7 @@
                 <Label Text="{Binding Description}" FontFamily="{StaticResource FontBold}" FontSize="18" />
             </Border>
         </Grid>
-        <Label Text="Elige la versión que funciona correctamente." Style="{StaticResource Muted}" />
+        <Label Text="Elige la versión que no tiene el problema descrito arriba." Style="{StaticResource Muted}" />
         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}" Spacing="12">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="a:CodeOptionViewModel">

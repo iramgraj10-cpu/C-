@@ -1031,6 +1031,8 @@ internal static class U02Colecciones
                 No("Agregar a una lista es lento.", "Add al final de una lista es muy rápido en promedio.", ErrorCategory.ConceptMisunderstanding),
             ],
             code: """
+                Console.WriteLine(Unicos([5, 3, 5, 8])); // 3
+
                 int Unicos(int[] pedidos)
                 {
                     List<int> procesados = [];

@@ -117,6 +117,78 @@ public sealed class ContentValidationTests(ITestOutputHelper output)
         }
     }
 
+    /// <summary>
+    /// Un fragmento que usa nombres que no declara (CS0103, CS0246) parece incompleto: debe avisarlo con un comentario
+    /// «// Fragmento: …» o tratar justamente de ese error de compilación.
+    /// </summary>
+    [Fact]
+    public void El_codigo_de_las_preguntas_no_usa_nombres_sin_declarar_sin_avisarlo()
+    {
+        var failures = new List<string>();
+        foreach (var item in Catalog.Items.Where(i => i is not CodeExercise && i.Code is not null))
+        {
+            var code = item.Code!;
+            if (code.TrimStart().StartsWith("// Fragmento", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var undeclared = InProcessRunner.CompileErrors(code).Where(e => e.Id is "CS0103" or "CS0246").ToList();
+            if (undeclared.Count == 0)
+            {
+                continue;
+            }
+
+            var correct = item switch
+            {
+                ChoiceItem c => c.Options.Single(o => o.IsCorrect).Text,
+                ShortAnswerItem s => s.AcceptedAnswers[0],
+                _ => "",
+            };
+            var aboutCompiling = (item.Prompt + " " + correct).Contains("compila", StringComparison.OrdinalIgnoreCase) ||
+                                 item.Prompt.Contains("existe", StringComparison.OrdinalIgnoreCase);
+            if (!aboutCompiling)
+            {
+                failures.Add($"{item.Id}: usa nombres sin declarar ({string.Join("; ", undeclared.Select(e => e.Message))})");
+            }
+        }
+
+        foreach (var f in failures)
+        {
+            output.WriteLine(f);
+        }
+
+        Assert.Empty(failures);
+    }
+
+    /// <summary>Si el enunciado dice que el programa no compila, de verdad no debe compilar (y al revés).</summary>
+    [Fact]
+    public void Lo_que_dicen_los_enunciados_sobre_compilar_coincide_con_el_codigo()
+    {
+        var failures = new List<string>();
+        foreach (var item in Catalog.Items.Where(i => i is not CodeExercise && i.Code is not null))
+        {
+            var says = item.Prompt.Contains("no compila", StringComparison.OrdinalIgnoreCase);
+            if (!says)
+            {
+                continue;
+            }
+
+            var errors = InProcessRunner.CompileErrors(item.Code!);
+            if (errors.All(e => e.Id == "CS5001"))
+            {
+                failures.Add($"{item.Id}: el enunciado dice que no compila, pero compila");
+            }
+        }
+
+        foreach (var f in failures)
+        {
+            output.WriteLine(f);
+        }
+
+        Assert.Empty(failures);
+    }
+
     [Fact]
     public void Las_soluciones_modelo_pasan_y_el_codigo_inicial_no()
     {

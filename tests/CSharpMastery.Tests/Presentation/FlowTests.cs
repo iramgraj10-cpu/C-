@@ -543,7 +543,7 @@ public sealed class FlowTests : IDisposable
     [Fact]
     public async Task Un_hueco_fallado_muestra_la_respuesta_y_no_da_xp()
     {
-        var builder = new LessonFlowBuilder(CurriculumContent.InteractiveExclusions);
+        var builder = new LessonFlowBuilder(CurriculumContent.InteractiveExclusions, CurriculumContent.OutputOf);
         var skill = CurriculumContent.Catalog.GetSkill("n1.for");
         var cloze = builder.Explanation(skill, skill.Lesson!).OfType<ClozeStep>().First();
         var vm = new ClozeViewModel(cloze);
