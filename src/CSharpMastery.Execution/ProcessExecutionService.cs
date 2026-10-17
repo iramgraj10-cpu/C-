@@ -227,6 +227,15 @@ internal sealed class RunnerProcess : IDisposable
     public async Task<ExecutionResult> ExecuteAsync(ExecutionRequest request, CancellationToken cancellationToken)
     {
         var stopwatch = Stopwatch.StartNew();
+
+        // El arranque del proceso y el precalentamiento del compilador no cuentan como tiempo del ejercicio:
+        // en un equipo lento (o recién encendido) pueden tardar más que el límite y el estudiante vería
+        // «tardó demasiado» con una solución correcta. El límite empieza a correr cuando el ejecutor está listo.
+        if (await WaitReadyAsync(cancellationToken).ConfigureAwait(false) is { } notReady)
+        {
+            return notReady;
+        }
+
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(request.Limits.TotalTimeoutMs);
 
@@ -350,6 +359,38 @@ internal sealed class RunnerProcess : IDisposable
             Message = msg,
             DurationMs = stopwatch.ElapsedMilliseconds,
         };
+    }
+
+    /// <summary>Máximo para que el ejecutor arranque y precaliente el compilador.</summary>
+    public const int StartupTimeoutMs = 120_000;
+
+    /// <summary>Espera el mensaje «ready» del ejecutor; devuelve un resultado solo si no llegó.</summary>
+    private async Task<ExecutionResult?> WaitReadyAsync(CancellationToken cancellationToken)
+    {
+        using var startup = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        startup.CancelAfter(StartupTimeoutMs);
+        try
+        {
+            while (await _process.StandardOutput.ReadLineAsync(startup.Token).ConfigureAwait(false) is { } line)
+            {
+                try
+                {
+                    if (JsonSerializer.Deserialize<RunnerMessage>(line, ProtocolJson.Options)?.Type == RunnerMessage.Ready)
+                    {
+                        return null;
+                    }
+                }
+                catch (JsonException)
+                {
+                }
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            Kill();
+        }
+
+        return ExecutionResult.Unavailable("El motor de ejecución no pudo iniciarse. Inténtalo de nuevo.");
     }
 
     private static bool IsStackOverflow(string stderr) => stderr.Contains("Stack overflow", StringComparison.OrdinalIgnoreCase);
