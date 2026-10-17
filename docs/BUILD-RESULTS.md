@@ -76,10 +76,20 @@ En este entorno no se pudo descargar el SDK oficial de Google, así que se armó
 - `zipalign` y `apksigner` de los paquetes de Ubuntu.
 Para un paquete de distribución conviene recompilar con el SDK oficial (Android Studio o `sdkmanager`).
 
+## 4. Windows en GitHub Actions (`.github/workflows/windows.yml`)
+Ejecución 39009803613 en `windows-latest` (17 de octubre de 2026), commit `ff54118`, en el repositorio privado del autor:
+las 130 pruebas pasan en Windows (incluido el motor de ejecución en proceso separado), la publicación win-x64 autocontenida
+termina, el paso de comprobación encuentra `CSharpMastery.App.exe` y la carpeta `runner`, y el artefacto
+`CSharpMastery-windows-x64` (160 MB comprimido) queda en la pestaña Actions. Las primeras siete ejecuciones fallaron y
+llevaron a estas correcciones: saltos de línea LF forzados (`.gitattributes`), desbordamiento de pila reconocido aunque
+Windows tarde en cerrar el proceso, el límite de tiempo empieza cuando el ejecutor está listo (el arranque en frío
+marcaba como lento el primer ejercicio), RID de Windows fijado en el proyecto y el ejecutor publicado sin heredar el
+TargetFramework de la app. La interfaz de Windows no se ha visto en pantalla.
+
 ## Lo que no se pudo verificar
 | Qué | Por qué |
 |---|---|
 | Ejecutar el APK | No hay emulador ni dispositivo en el entorno |
-| Compilar para Windows | Requiere Windows: el compilador XAML de WinUI falla en Linux (probado). Se preparó `.github/workflows/windows.yml` para compilarla en una máquina Windows de GitHub Actions |
+| Ver la app de Windows funcionando | Se compiló y probó en una máquina Windows de GitHub Actions (sección 4), pero nadie la ha abierto en pantalla todavía |
 | Compilar para iOS y macOS | Requiere macOS con Xcode |
 | Probar la interfaz visualmente (incluido el diseño nuevo de la 0.2.0) | Sin pantalla ni emulador; los flujos se probaron a nivel de ViewModel y el XAML compila con bindings verificados |
