@@ -23,8 +23,8 @@
                     <DataTemplate x:DataType="vm:SkillScoreLine">
                         <Border Style="{StaticResource Card}" Padding="12">
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                <Label Grid.Column="1" Text="{Binding Score}" FontAttributes="Bold" />
+                                <Label Text="{Binding Title}" FontFamily="{StaticResource FontBold}" />
+                                <Label Grid.Column="1" Text="{Binding Score}" FontFamily="{StaticResource FontBold}" />
                                 <Label Grid.Row="1" Text="{Binding Detail}" Style="{StaticResource Muted}" />
                                 <Label Grid.Row="1" Grid.Column="1" Text="Reforzar" Style="{StaticResource Badge}" IsVisible="{Binding Weak}" />
                             </Grid>
@@ -40,7 +40,7 @@
                         <DataTemplate x:DataType="vm:RecoveryLine">
                             <Border Style="{StaticResource Card}" Padding="12">
                                 <VerticalStackLayout Spacing="6">
-                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Title}" FontFamily="{StaticResource FontBold}" />
                                     <Label Text="{Binding Action}" />
                                     <HorizontalStackLayout Spacing="8">
                                         <Button Text="Repasar la lección" Style="{StaticResource Secondary}"

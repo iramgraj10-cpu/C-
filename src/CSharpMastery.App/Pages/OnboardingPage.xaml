@@ -2,6 +2,7 @@
 <local:OnboardingPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
              xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Pages.OnboardingPage"
              x:DataType="vm:OnboardingViewModel"
@@ -10,15 +11,20 @@
              Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14" MaximumWidthRequest="680">
-            <Label Text="Bienvenido a C# Mastery" Style="{StaticResource Title}" />
+            <Image Source="mascot_party.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center" SemanticProperties.Description="Mascota de C# Mastery" />
+            <Label Text="¡Hola! Vamos a aprender C# practicando" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
             <Label Text="{Binding MethodText}" />
             <Label Text="Todo se guarda solo en este dispositivo. No necesitas cuenta ni conexión." Style="{StaticResource Muted}" />
 
             <Label Text="¿Cómo te llamas?" Style="{StaticResource Heading}" />
-            <Entry Text="{Binding DisplayName}" Placeholder="Tu nombre (opcional)" SemanticProperties.Description="Tu nombre" />
+            <Border Style="{StaticResource InputBox}">
+                <Entry Text="{Binding DisplayName}" Placeholder="Tu nombre (opcional)" SemanticProperties.Description="Tu nombre" />
+            </Border>
 
             <Label Text="¿Cuál es tu experiencia?" Style="{StaticResource Heading}" />
-            <Picker ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}" Title="Elige una opción" />
+            <Border Style="{StaticResource InputBox}">
+                <Picker ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}" Title="Elige una opción" />
+            </Border>
 
             <Label Text="¿Para qué quieres aprender C#?" Style="{StaticResource Heading}" />
             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Goals}">
@@ -38,13 +44,27 @@
                     <DataTemplate x:DataType="x:Int32">
                         <Button Style="{StaticResource Secondary}" Margin="0,0,8,8" Text="{Binding StringFormat='{0} min'}"
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OnboardingViewModel}}, Path=SelectMinutesCommand, x:DataType=vm:OnboardingViewModel}"
-                                CommandParameter="{Binding .}" />
+                                CommandParameter="{Binding .}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource AreEqual}">
+                                            <Binding Path="." />
+                                            <Binding Source="{RelativeSource AncestorType={x:Type vm:OnboardingViewModel}}" Path="SessionMinutes" x:DataType="vm:OnboardingViewModel" />
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BlueSoft}, Dark={StaticResource BlueSoftDark}}" />
+                                    <Setter Property="BorderColor" Value="{StaticResource Blue}" />
+                                    <Setter Property="TextColor" Value="{StaticResource BlueLedge}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </FlexLayout>
             <Label Text="{Binding SessionMinutes, StringFormat='Elegido: {0} minutos (puedes cambiarlo en cada sesión).'}" Style="{StaticResource Muted}" />
 
-            <Button Text="Empezar" Command="{Binding StartCommand}" />
+            <controls:ChunkyButton Text="Empezar" Command="{Binding StartCommand}" Variant="green" Margin="0,8,0,0" />
             <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
         </VerticalStackLayout>
     </ScrollView>

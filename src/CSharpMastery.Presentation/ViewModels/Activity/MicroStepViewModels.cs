@@ -111,11 +111,20 @@ public sealed partial class ClozeViewModel : MicroStepViewModel
     public IReadOnlyList<TokenChipViewModel> Options { get; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DisplayCode))]
+    [NotifyPropertyChangedFor(nameof(DisplayCode), nameof(BlankLength))]
     public partial TokenChipViewModel? Selected { get; set; }
 
     /// <summary>El código con el hueco (o con la ficha elegida).</summary>
     public string DisplayCode => _cloze.Before + (Selected?.Text ?? Blank(_cloze.Answer)) + _cloze.After;
+
+    /// <summary>Dónde está el hueco dentro de <see cref="DisplayCode"/> (para resaltarlo).</summary>
+    public int BlankStart => _cloze.Before.Length;
+
+    public int BlankLength => (Selected?.Text ?? Blank(_cloze.Answer)).Length;
+
+    /// <summary>Color del hueco: vacío, elegido, correcto o incorrecto.</summary>
+    [ObservableProperty]
+    public partial ChipState BlankState { get; set; }
 
     private static string Blank(string answer) => new('_', Math.Max(3, answer.Length));
 
@@ -133,6 +142,7 @@ public sealed partial class ClozeViewModel : MicroStepViewModel
             option.State = option == chip ? ChipState.Selected : ChipState.Normal;
         }
 
+        BlankState = ChipState.Selected;
         PrimaryEnabled = true;
     }
 
@@ -149,6 +159,7 @@ public sealed partial class ClozeViewModel : MicroStepViewModel
         }
 
         var correct = Selected.Text == _cloze.Answer;
+        BlankState = correct ? ChipState.Correct : ChipState.Wrong;
         foreach (var option in Options)
         {
             option.State = option.Text == _cloze.Answer ? ChipState.Correct : option == Selected ? ChipState.Wrong : ChipState.Normal;
@@ -190,7 +201,11 @@ public sealed partial class ParsonsBankLineViewModel(int lineIndex, string text)
     public string Text { get; } = text;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(State))]
     public partial bool IsUsed { get; set; }
+
+    /// <summary>Una línea ya colocada deja su hueco gris en el banco.</summary>
+    public ChipState State => IsUsed ? ChipState.Used : ChipState.Normal;
 }
 
 public sealed partial class ParsonsViewModel : MicroStepViewModel

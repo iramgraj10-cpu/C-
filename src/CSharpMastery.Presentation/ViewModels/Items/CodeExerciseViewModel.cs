@@ -350,19 +350,22 @@ public sealed partial class CodeExerciseViewModel : ItemViewModel
         : HasSubmitted && Feedback is not null && !BannerDismissed ? FooterState.Failed
         : FooterState.Editing;
 
+    private string? WithMessages(string? text) =>
+        Messages.Count == 0 ? text : string.Join("\n\n", new[] { text, string.Join("\n", Messages.Select(m => "• " + m)) }.Where(t => !string.IsNullOrWhiteSpace(t)));
+
     protected override void UpdateFooter()
     {
         switch (State)
         {
             case FooterState.Solved:
-                ShowBanner(BannerKind.Correct, PraiseFor(Item.Id + Tries), Feedback);
+                ShowBanner(BannerKind.Correct, PraiseFor(Item.Id + Tries), WithMessages(Feedback));
                 PrimaryText = "Continuar";
                 PrimaryEnabled = true;
                 SecondaryText = null;
                 break;
             case FooterState.Finished:
                 ShowBanner(BannerKind.Info, Settings.IsAssessment ? "Entrega registrada" : SolutionVisible && !IsSolved ? "Estudia la solución" : null,
-                    Settings.IsAssessment ? ResultSummary : Feedback);
+                    WithMessages(Settings.IsAssessment ? ResultSummary : Feedback));
                 PrimaryText = "Continuar";
                 PrimaryEnabled = true;
                 SecondaryText = null;

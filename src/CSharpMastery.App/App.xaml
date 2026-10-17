@@ -19,6 +19,13 @@
             <conv:PassMarkConverter x:Key="PassMark" />
             <conv:IsPositiveConverter x:Key="Positive" />
             <conv:AllTrueConverter x:Key="AllTrue" />
+            <conv:ChipStateConverter x:Key="Chip" />
+            <conv:BannerConverter x:Key="Banner" />
+            <conv:NodeStateConverter x:Key="Node" />
+            <conv:LevelColorConverter x:Key="LevelColor" />
+            <conv:IndentMarginConverter x:Key="IndentMargin" />
+            <conv:EqualsConverter x:Key="Equals" />
+            <conv:AreEqualConverter x:Key="AreEqual" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

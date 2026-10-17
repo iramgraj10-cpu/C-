@@ -24,13 +24,15 @@ internal sealed class TestExecutor(byte[] assembly, byte[] pdb, CodeMode mode, E
             var originalOut = Console.Out;
             var originalIn = Console.In;
             var originalErr = Console.Error;
-            Console.SetOut(writer);
-            Console.SetError(writer);
-            Console.SetIn(new StringReader(test.Input ?? ""));
+            var input = new StringReader(test.Input ?? "");
+            Console.SetOut(ConsoleRoute.Writer(writer));
+            Console.SetError(ConsoleRoute.Writer(writer));
+            Console.SetIn(ConsoleRoute.Reader(input));
 
             var stopwatch = Stopwatch.StartNew();
             var thread = new Thread(() =>
             {
+                ConsoleRoute.Bind(writer, input);
                 try
                 {
                     returnValue = mode == CodeMode.Program ? RunProgram(loaded) : RunCheck(loaded, index);

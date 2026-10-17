@@ -54,7 +54,12 @@ public sealed partial class HomeViewModel(
 
     /// <summary>Título de la lección para «Continuar» (la primera no dominada de la ruta).</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NextLessonAction), nameof(NextLessonHeading))]
     public partial string? NextLessonTitle { get; set; }
+
+    public string NextLessonAction => NextLessonTitle is null ? "Ver la ruta" : "Empezar lección";
+
+    public string NextLessonHeading => NextLessonTitle ?? "¡Dominaste todas las lecciones disponibles!";
 
     [ObservableProperty]
     public partial string? NextLessonUnit { get; set; }

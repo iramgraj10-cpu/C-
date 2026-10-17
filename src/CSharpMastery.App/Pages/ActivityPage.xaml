@@ -2,35 +2,94 @@
 <local:ActivityPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
              xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Pages.ActivityPage"
              x:DataType="a:ActivityViewModel"
              Title="{Binding Title}"
+             Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
-    <Grid RowDefinitions="Auto,*">
-        <!-- Barra de estado: bloque, avance y tiempo (informativo, no punitivo) -->
-        <Border Padding="16,10" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-            <VerticalStackLayout Spacing="4" MaximumWidthRequest="900">
-                <Grid ColumnDefinitions="*,Auto">
-                    <VerticalStackLayout>
-                        <Label Text="{Binding BlockLabel}" Style="{StaticResource Badge}" IsVisible="{Binding BlockLabel, Converter={StaticResource HasValue}}" />
-                        <Label Text="{Binding ProgressText}" Style="{StaticResource Muted}" />
-                        <Label Text="{Binding ElapsedText}" Style="{StaticResource Muted}" IsVisible="{Binding ElapsedText, Converter={StaticResource HasValue}}" />
-                    </VerticalStackLayout>
-                    <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                        <Button Text="Pausar" Style="{StaticResource Secondary}" Command="{Binding PauseCommand}" IsVisible="{Binding IsSession}" />
-                        <Button Text="Terminar" Style="{StaticResource Link}" Command="{Binding FinishEarlyCommand}" IsVisible="{Binding IsSession}" />
-                        <Button Text="Salir" Style="{StaticResource Secondary}" Command="{Binding ExitCommand}" IsVisible="{Binding IsSession, Converter={StaticResource Not}}" />
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Barra superior: cerrar, progreso y XP ganada -->
+        <VerticalStackLayout Padding="8,10,16,4" Spacing="4">
+            <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="8" MaximumWidthRequest="760">
+                <Border StrokeThickness="0" BackgroundColor="Transparent" WidthRequest="44" HeightRequest="44"
+                        SemanticProperties.Description="Salir y guardar" ToolTipProperties.Text="Salir (se guarda lo que llevas)">
+                    <Label Text="&#xe5cd;" Style="{StaticResource Icon}" FontSize="28" TextColor="{AppThemeBinding Light=#AFAFAF, Dark=#6F7E86}" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ExitCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+                <controls:FatProgressBar Grid.Column="1" Progress="{Binding Progress}" BarColor="{StaticResource Green}" VerticalOptions="Center" />
+                <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="2" IsVisible="{Binding Combo, Converter={StaticResource Positive}}"
+                                           SemanticProperties.Description="{Binding Combo, StringFormat='{0} aciertos seguidos'}">
+                        <Label Text="&#xef55;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Flame}" />
+                        <Label Text="{Binding Combo}" FontFamily="{StaticResource FontBlack}" FontSize="17" TextColor="{StaticResource Flame}" VerticalOptions="Center" />
                     </HorizontalStackLayout>
-                </Grid>
-                <Label Text="{Binding TimeNotice}" IsVisible="{Binding TimeNotice, Converter={StaticResource HasValue}}"
-                       TextColor="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
-                <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}"
-                       TextColor="{AppThemeBinding Light={StaticResource ErrorLight}, Dark={StaticResource ErrorDark}}" />
-            </VerticalStackLayout>
-        </Border>
+                    <HorizontalStackLayout Spacing="2" SemanticProperties.Description="{Binding XpEarned, StringFormat='{0} XP ganada'}">
+                        <Label Text="&#xea0b;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Gold}" />
+                        <Label x:Name="XpLabel" Text="{Binding XpEarned}" FontFamily="{StaticResource FontBlack}" FontSize="17" TextColor="{StaticResource GoldLedge}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+            </Grid>
+            <!-- Sesión: bloque, tiempo y terminar -->
+            <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsSession}" Padding="12,0,0,0" MaximumWidthRequest="760">
+                <Label Style="{StaticResource Muted}" VerticalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding BlockLabel}" />
+                            <Span Text="  ·  " />
+                            <Span Text="{Binding ElapsedText}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Button Grid.Column="1" Text="Terminar" Style="{StaticResource Link}" Command="{Binding FinishEarlyCommand}" />
+            </Grid>
+            <Border Style="{StaticResource InfoBox}" Padding="12,8" IsVisible="{Binding TimeNotice, Converter={StaticResource HasValue}}" MaximumWidthRequest="760">
+                <Label Text="{Binding TimeNotice}" TextColor="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+            </Border>
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" Padding="12,0"
+                   TextColor="{AppThemeBinding Light={StaticResource ErrorLight}, Dark={StaticResource ErrorDark}}" />
+        </VerticalStackLayout>
+
         <ScrollView x:Name="Scroller" Grid.Row="1">
-            <ContentView x:Name="StepHost" Padding="16" MaximumWidthRequest="900" />
+            <ContentView x:Name="StepHost" Padding="16,8,16,24" MaximumWidthRequest="760" />
         </ScrollView>
+
+        <!-- Pie fijo: franja de retroalimentación y botones Comprobar / Continuar -->
+        <Grid Grid.Row="2" BackgroundColor="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=bg}">
+            <BoxView HeightRequest="2" Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                     VerticalOptions="Start" IsVisible="{Binding CurrentStep.HasBanner, Converter={StaticResource Not}}" />
+            <VerticalStackLayout Padding="16,14,16,18" Spacing="12" MaximumWidthRequest="760">
+                <ScrollView x:Name="BannerPanel" IsVisible="{Binding CurrentStep.HasBanner}" MaximumHeightRequest="280">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 22" VerticalOptions="Start"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#131F24}">
+                            <Label Text="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=icon}" Style="{StaticResource Icon}" FontSize="30"
+                                   TextColor="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=fg}" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="{Binding CurrentStep.BannerTitle}" FontFamily="{StaticResource FontBlack}" FontSize="21"
+                                   TextColor="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=fg}"
+                                   IsVisible="{Binding CurrentStep.BannerTitle, Converter={StaticResource HasValue}}" />
+                            <Label Text="{Binding CurrentStep.BannerText}" FontFamily="{StaticResource FontSemi}" IsVisible="{Binding CurrentStep.HasBannerText}"
+                                   TextColor="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=fg}" />
+                            <controls:CodeView Code="{Binding CurrentStep.BannerCode}" IsVisible="{Binding CurrentStep.HasBannerCode}" />
+                            <Button Text="{Binding CurrentStep.BannerLinkText}" Command="{Binding CurrentStep.BannerLinkCommand}" IsVisible="{Binding CurrentStep.HasBannerLink}"
+                                    Style="{StaticResource Link}" HorizontalOptions="Start" Padding="0"
+                                    TextColor="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=fg}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </ScrollView>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <controls:ChunkyButton Text="{Binding CurrentStep.SecondaryText}" Command="{Binding CurrentStep.SecondaryCommand}" Variant="outline"
+                                           IsVisible="{Binding CurrentStep.HasSecondary}" MinimumWidthRequest="120" />
+                    <controls:ChunkyButton Grid.Column="1" Text="{Binding CurrentStep.PrimaryText}" Command="{Binding CurrentStep.PrimaryCommand}"
+                                           Variant="{Binding CurrentStep.Banner, Converter={StaticResource Banner}, ConverterParameter=variant}"
+                                           ToolTipProperties.Text="Ctrl+Enter" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </local:ActivityPageBase>

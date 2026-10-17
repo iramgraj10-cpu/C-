@@ -2,115 +2,239 @@
 <local:HomePageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CSharpMastery.App.Pages"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
              xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Pages.HomePage"
              x:DataType="vm:HomeViewModel"
+             Shell.NavBarIsVisible="False"
              Title="Inicio">
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="860">
-            <Label Text="{Binding Greeting}" Style="{StaticResource Title}" />
-            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource ErrorLight}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" />
+    <Grid RowDefinitions="Auto,*">
+        <!-- Barra de estado: racha, XP total y meta del día -->
+        <Grid Padding="16,12" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="18">
+            <Label Text="C# Mastery" FontFamily="{StaticResource FontBlack}" FontSize="20" TextColor="{StaticResource Brand}" VerticalOptions="Center" />
+            <HorizontalStackLayout Grid.Column="1" Spacing="3" SemanticProperties.Description="{Binding Streak, StringFormat='Racha: {0} días'}">
+                <Label Text="&#xef55;" Style="{StaticResource Icon}" FontSize="26" TextColor="{StaticResource Flame}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding PracticedToday}" Value="False">
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light=#C9C9C9, Dark=#4B5A62}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+                <Label Text="{Binding Streak}" FontFamily="{StaticResource FontBlack}" FontSize="18" TextColor="{StaticResource Flame}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="2" Spacing="3" SemanticProperties.Description="{Binding TotalXp, StringFormat='{0} XP en total'}">
+                <Label Text="&#xea0b;" Style="{StaticResource Icon}" FontSize="26" TextColor="{StaticResource Gold}" />
+                <Label Text="{Binding TotalXp}" FontFamily="{StaticResource FontBlack}" FontSize="18" TextColor="{StaticResource GoldLedge}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Grid Grid.Column="3" WidthRequest="34" HeightRequest="34" SemanticProperties.Description="{Binding GoalText}">
+                <controls:RingProgress Progress="{Binding GoalProgress}" Thickness="5" RingColor="{StaticResource Gold}" />
+                <Label Text="&#xea23;" Style="{StaticResource Icon}" FontSize="16" TextColor="{StaticResource Gold}" />
+            </Grid>
+        </Grid>
 
-            <!-- Retomar -->
-            <Border Style="{StaticResource Card}" IsVisible="{Binding HasUnfinishedSession}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Tienes una sesión a medias" Style="{StaticResource Heading}" />
-                    <Label Text="{Binding UnfinishedText}" />
-                    <Button Text="Retomar sesión" Command="{Binding ResumeSessionCommand}" HorizontalOptions="Start" />
-                </VerticalStackLayout>
-            </Border>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,4,16,24" Spacing="16" MaximumWidthRequest="720">
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource ErrorLight}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" />
 
-            <!-- Repasos -->
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Repasos" Style="{StaticResource Heading}" />
-                    <Label Text="{Binding DueReviewsText}" />
-                    <Button Text="Repasar ahora" Command="{Binding StartReviewCommand}" IsVisible="{Binding HasDueReviews}" HorizontalOptions="Start" />
-                </VerticalStackLayout>
-            </Border>
+                <!-- Saludo de la mascota -->
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Image x:Name="Mascot" Source="mascot_happy.png" WidthRequest="84" HeightRequest="84" VerticalOptions="End" SemanticProperties.Description="Mascota" />
+                    <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,10" VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding Greeting}" FontFamily="{StaticResource FontBlack}" FontSize="19" />
+                            <Label Text="{Binding StreakText}" Style="{StaticResource Muted}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
 
-            <!-- Nueva sesión -->
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Nueva sesión de estudio" Style="{StaticResource Heading}" />
-                    <Label Text="{Binding FocusText}" />
-                    <Label Text="Duración" Style="{StaticResource Muted}" />
-                    <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Presets}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="x:Int32">
-                                <Button Style="{StaticResource Secondary}" Margin="0,0,8,8"
-                                        Text="{Binding StringFormat='{0} min'}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=SelectPresetCommand, x:DataType=vm:HomeViewModel}"
-                                        CommandParameter="{Binding .}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </FlexLayout>
-                    <HorizontalStackLayout Spacing="8">
-                        <Entry Placeholder="Otra (10–90)" Keyboard="Numeric" WidthRequest="140" Text="{Binding CustomMinutes}"
-                               ReturnCommand="{Binding ApplyCustomMinutesCommand}" SemanticProperties.Description="Duración personalizada en minutos" />
-                        <Button Text="Usar" Style="{StaticResource Secondary}" Command="{Binding ApplyCustomMinutesCommand}" />
-                    </HorizontalStackLayout>
-                    <Label Text="{Binding MinutesError}" TextColor="{AppThemeBinding Light={StaticResource ErrorLight}, Dark={StaticResource ErrorDark}}"
-                           IsVisible="{Binding MinutesError, Converter={StaticResource HasValue}}" />
-                    <Label Text="{Binding SelectedMinutes, StringFormat='Plan para {0} minutos:'}" FontAttributes="Bold" />
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding PlanPreview}" Spacing="2">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="vm:PlanBlockLine">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding Label}" />
-                                    <Label Grid.Column="1" Text="{Binding Minutes}" Style="{StaticResource Muted}" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                <!-- Continuar con la siguiente lección -->
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="0,0,0,5" BackgroundColor="{StaticResource BrandLedge}">
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="18" BackgroundColor="{StaticResource Brand}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="{Binding NextLessonUnit}" FontFamily="{StaticResource FontBold}" FontSize="13" TextTransform="Uppercase" CharacterSpacing="0.6"
+                                   TextColor="#E4DBFF" IsVisible="{Binding NextLessonUnit, Converter={StaticResource HasValue}}" />
+                            <Label Text="{Binding NextLessonHeading}" FontFamily="{StaticResource FontBlack}" FontSize="22" TextColor="White" />
+                            <Label Text="Tarjetas cortas, completar código, ordenar líneas y cazar errores." TextColor="#E4DBFF" FontSize="14"
+                                   IsVisible="{Binding NextLessonTitle, Converter={StaticResource HasValue}}" />
+                            <controls:ChunkyButton Text="{Binding NextLessonAction}" Command="{Binding StartNextLessonCommand}" Variant="outline" Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Border>
+
+                <!-- Retomar -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasUnfinishedSession}" Stroke="{StaticResource Flame}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="&#xe034;" Style="{StaticResource Icon}" TextColor="{StaticResource Flame}" />
+                            <Label Text="Tienes una sesión a medias" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding UnfinishedText}" />
+                        <controls:ChunkyButton Text="Retomar sesión" Command="{Binding ResumeSessionCommand}" Variant="gold" />
                     </VerticalStackLayout>
-                    <Label Text="Puedes pausar en cualquier momento; el avance se guarda después de cada paso." Style="{StaticResource Muted}" />
-                    <HorizontalStackLayout Spacing="8">
-                        <Button Text="Empezar sesión" Command="{Binding StartSessionCommand}" />
-                        <Button Text="Ver la lección del tema" Style="{StaticResource Secondary}" Command="{Binding OpenFocusLessonCommand}"
-                                IsVisible="{Binding FocusSkillId, Converter={StaticResource HasValue}}" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Border>
+                </Border>
 
-            <Border Style="{StaticResource InfoBox}" IsVisible="{Binding PlacementHint, Converter={StaticResource HasValue}}">
-                <Label Text="{Binding PlacementHint}" />
-            </Border>
+                <!-- Meta diaria y semana -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <Grid WidthRequest="64" HeightRequest="64">
+                                <controls:RingProgress Progress="{Binding GoalProgress}" Thickness="8" RingColor="{StaticResource Gold}" />
+                                <Label Text="&#xea23;" Style="{StaticResource Icon}" FontSize="26" TextColor="{StaticResource Gold}" />
+                            </Grid>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="Meta diaria" Style="{StaticResource Heading}" Margin="0" />
+                                <Label Text="{Binding GoalText}" Style="{StaticResource Muted}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <FlexLayout JustifyContent="SpaceBetween" Direction="Row" BindableLayout.ItemsSource="{Binding Week}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:WeekDayLine">
+                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                        <Label Text="{Binding Label}" Style="{StaticResource Muted}" FontFamily="{StaticResource FontBold}" HorizontalTextAlignment="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsToday}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource Flame}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Border WidthRequest="34" HeightRequest="34" StrokeShape="RoundRectangle 17" StrokeThickness="2"
+                                                Stroke="{AppThemeBinding Light={StaticResource Gray}, Dark={StaticResource GrayDark}}" BackgroundColor="Transparent">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding Active}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{StaticResource Flame}" />
+                                                    <Setter Property="Stroke" Value="{StaticResource Flame}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Text="&#xef55;" Style="{StaticResource Icon}" FontSize="18" TextColor="White" IsVisible="{Binding Active}" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
 
-            <!-- Evaluaciones en curso -->
-            <Border Style="{StaticResource Card}" IsVisible="{Binding PendingAssessments.Count, Converter={StaticResource Positive}}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Evaluaciones en curso" Style="{StaticResource Heading}" />
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding PendingAssessments}" Spacing="8">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="vm:PendingAssessmentLine">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                    <Label Text="{Binding Progress}" Style="{StaticResource Muted}" />
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Button Text="Continuar" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ResumeAssessmentCommand, x:DataType=vm:HomeViewModel}" CommandParameter="{Binding .}" />
-                                        <Button Text="Reiniciar" Style="{StaticResource Secondary}" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ResetAssessmentCommand, x:DataType=vm:HomeViewModel}" CommandParameter="{Binding .}" />
-                                    </HorizontalStackLayout>
+                <!-- Repasos -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasDueReviews}" Stroke="{StaticResource Blue}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="&#xe042;" Style="{StaticResource Icon}" TextColor="{StaticResource Blue}" />
+                            <Label Text="Repasos pendientes" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding DueReviewsText}" />
+                        <controls:ChunkyButton Text="Repasar ahora" Command="{Binding StartReviewCommand}" Variant="blue" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sesión de estudio completa -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="&#xe425;" Style="{StaticResource Icon}" />
+                            <Label Text="Sesión de estudio" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding FocusText}" />
+                        <Label Text="Repaso, tema nuevo, práctica y un reto, con tiempo planeado. Elige cuánto:" Style="{StaticResource Muted}" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Presets}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:Int32">
+                                    <Button Style="{StaticResource Secondary}" Margin="0,0,8,8" Text="{Binding StringFormat='{0} min'}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=SelectPresetCommand, x:DataType=vm:HomeViewModel}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource AreEqual}">
+                                                        <Binding Path="." />
+                                                        <Binding Source="{RelativeSource AncestorType={x:Type vm:HomeViewModel}}" Path="SelectedMinutes" x:DataType="vm:HomeViewModel" />
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BlueSoft}, Dark={StaticResource BlueSoftDark}}" />
+                                                <Setter Property="BorderColor" Value="{StaticResource Blue}" />
+                                                <Setter Property="TextColor" Value="{StaticResource BlueLedge}" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Border Style="{StaticResource InputBox}">
+                                <Entry Placeholder="Otra duración (10–90)" Keyboard="Numeric" Text="{Binding CustomMinutes}"
+                                       ReturnCommand="{Binding ApplyCustomMinutesCommand}" SemanticProperties.Description="Duración personalizada en minutos" />
+                            </Border>
+                            <Button Grid.Column="1" Text="Usar" Style="{StaticResource Secondary}" Command="{Binding ApplyCustomMinutesCommand}" />
+                        </Grid>
+                        <Label Text="{Binding MinutesError}" TextColor="{AppThemeBinding Light={StaticResource ErrorLight}, Dark={StaticResource ErrorDark}}"
+                               IsVisible="{Binding MinutesError, Converter={StaticResource HasValue}}" />
+                        <Border Style="{StaticResource InfoBox}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding SelectedMinutes, StringFormat='Plan para {0} minutos'}" Style="{StaticResource Strong}" />
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding PlanPreview}" Spacing="2">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:PlanBlockLine">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <Label Text="{Binding Label}" FontSize="15" />
+                                                <Label Grid.Column="1" Text="{Binding Minutes}" Style="{StaticResource Muted}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
                                 </VerticalStackLayout>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Label Text="Puedes pausar cuando quieras: el avance se guarda después de cada paso." Style="{StaticResource Muted}" />
+                        <controls:ChunkyButton Text="Empezar sesión" Command="{Binding StartSessionCommand}" Variant="green" />
+                        <Button Text="Ver la lección del tema" Style="{StaticResource Link}" Command="{Binding OpenFocusLessonCommand}" HorizontalOptions="Center"
+                                IsVisible="{Binding FocusSkillId, Converter={StaticResource HasValue}}" />
                     </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
+                </Border>
 
-            <!-- Errores recurrentes -->
-            <Border Style="{StaticResource Card}" IsVisible="{Binding RecurringErrors.Count, Converter={StaticResource Positive}}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Errores que se repiten" Style="{StaticResource Heading}" />
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecurringErrors}" Spacing="6">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="x:String">
-                                <Label Text="{Binding StringFormat='• {0}'}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                <Border Style="{StaticResource InfoBox}" IsVisible="{Binding PlacementHint, Converter={StaticResource HasValue}}">
+                    <Label Text="{Binding PlacementHint}" />
+                </Border>
+
+                <!-- Evaluaciones en curso -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding PendingAssessments.Count, Converter={StaticResource Positive}}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="&#xe80c;" Style="{StaticResource Icon}" />
+                            <Label Text="Evaluaciones en curso" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding PendingAssessments}" Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PendingAssessmentLine">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="{Binding Title}" Style="{StaticResource Strong}" />
+                                        <Label Text="{Binding Progress}" Style="{StaticResource Muted}" />
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <controls:ChunkyButton Text="Continuar" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ResumeAssessmentCommand, x:DataType=vm:HomeViewModel}" CommandParameter="{Binding .}" />
+                                            <Button Grid.Column="1" Text="Reiniciar" Style="{StaticResource Link}" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ResetAssessmentCommand, x:DataType=vm:HomeViewModel}" CommandParameter="{Binding .}" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
-        </VerticalStackLayout>
-    </ScrollView>
+                </Border>
+
+                <!-- Errores recurrentes -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding RecurringErrors.Count, Converter={StaticResource Positive}}">
+                    <VerticalStackLayout Spacing="8">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="&#xe868;" Style="{StaticResource Icon}" TextColor="{StaticResource Red}" />
+                            <Label Text="Errores que se repiten" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecurringErrors}" Spacing="6">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Label Text="{Binding StringFormat='• {0}'}" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </local:HomePageBase>

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CSharpMastery.App.Pages"
              xmlns:vm="clr-namespace:CSharpMastery.Presentation.ViewModels.Pages;assembly=CSharpMastery.Presentation"
+             xmlns:d="clr-namespace:CSharpMastery.Presentation.ViewModels.Display;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Pages.SettingsPage"
              x:DataType="vm:SettingsViewModel"
              Title="Ajustes">
@@ -15,10 +16,43 @@
             <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasValue}}" TextColor="{StaticResource ErrorLight}" />
 
             <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="&#xea23;" Style="{StaticResource Icon}" TextColor="{StaticResource Gold}" />
+                        <Label Text="Meta diaria" Style="{StaticResource Heading}" Margin="0" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Cuánta XP quieres ganar al día. Ganas XP al acertar ejercicios y al terminar lecciones; leer no da XP." Style="{StaticResource Muted}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding GoalOptions}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="d:OptionDisplay(x:Int32)">
+                                <Button Style="{StaticResource Secondary}" Text="{Binding Label}" HorizontalOptions="Fill"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SettingsViewModel}}, Path=SetGoalCommand, x:DataType=vm:SettingsViewModel}"
+                                        CommandParameter="{Binding .}">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource AreEqual}">
+                                                    <Binding Path="Value" />
+                                                    <Binding Source="{RelativeSource AncestorType={x:Type vm:SettingsViewModel}}" Path="DailyGoal" x:DataType="vm:SettingsViewModel" />
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BlueSoft}, Dark={StaticResource BlueSoftDark}}" />
+                                            <Setter Property="BorderColor" Value="{StaticResource Blue}" />
+                                            <Setter Property="TextColor" Value="{StaticResource BlueLedge}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Perfil" Style="{StaticResource Heading}" Margin="0" />
                     <Label Text="Nombre" Style="{StaticResource Muted}" />
-                    <Entry Text="{Binding DisplayName}" SemanticProperties.Description="Nombre" />
+                    <Border Style="{StaticResource InputBox}"><Entry Text="{Binding DisplayName}" SemanticProperties.Description="Nombre" /></Border>
                     <Label Text="Experiencia inicial" Style="{StaticResource Muted}" />
                     <Picker ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}" />
                     <Label Text="Duración preferida de sesión (minutos, 10–90)" Style="{StaticResource Muted}" />
@@ -70,7 +104,7 @@
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Ejecución de código" Style="{StaticResource Heading}" Margin="0" />
-                    <Label Text="{Binding EngineStatus}" FontAttributes="Bold" />
+                    <Label Text="{Binding EngineStatus}" Style="{StaticResource Strong}" />
                     <Label Text="{Binding EngineMessage}" />
                     <Button Text="Probar el motor" Style="{StaticResource Secondary}" Command="{Binding TestEngineCommand}" HorizontalOptions="Start" />
                     <Label Text="{Binding EngineTestResult}" IsVisible="{Binding EngineTestResult, Converter={StaticResource HasValue}}" />

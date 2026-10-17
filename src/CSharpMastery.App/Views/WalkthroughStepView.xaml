@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.WalkthroughStepView"
+             x:DataType="a:WalkthroughViewModel">
+    <!-- Recorrido del ejemplo: la línea activa se ilumina y la mascota explica qué hace. -->
+    <VerticalStackLayout Spacing="14">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe037;" Style="{StaticResource Icon}" FontSize="22" />
+            <Label Text="{Binding CounterText}" Style="{StaticResource Badge}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Label Text="{Binding Title}" FontFamily="{StaticResource FontBold}" FontSize="19" />
+
+        <Border Style="{StaticResource CodeBox}" Padding="8,10">
+            <ScrollView Orientation="Horizontal">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="0">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="a:CodeLineViewModel">
+                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="6,3" BackgroundColor="Transparent">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsHighlighted}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="#4A3F8F" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Grid ColumnDefinitions="26,Auto" ColumnSpacing="8">
+                                    <Label Text="{Binding Number}" Style="{StaticResource CodeLabel}" TextColor="{StaticResource CodeLineNumber}" HorizontalTextAlignment="End" />
+                                    <Label Grid.Column="1" FormattedText="{Binding Text, Converter={StaticResource Highlight}}" Style="{StaticResource CodeLabel}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+        <!-- Globo de la mascota con la explicación de la línea -->
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" IsVisible="{Binding Note, Converter={StaticResource HasValue}}">
+            <Image Source="mascot_happy.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota" />
+            <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,12">
+                <Label Text="{Binding Note}" FontSize="16" />
+            </Border>
+        </Grid>
+
+        <VerticalStackLayout IsVisible="{Binding ShowOutput}" Spacing="6">
+            <HorizontalStackLayout Spacing="6">
+                <Label Text="&#xe86f;" Style="{StaticResource Icon}" FontSize="20" TextColor="{StaticResource Green}" />
+                <Label Text="Al ejecutarlo, la consola muestra:" Style="{StaticResource Strong}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Border Style="{StaticResource CodeBox}">
+                <Label Text="{Binding Output}" Style="{StaticResource CodeLabel}" TextColor="#C3E88D" LineBreakMode="WordWrap" />
+            </Border>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

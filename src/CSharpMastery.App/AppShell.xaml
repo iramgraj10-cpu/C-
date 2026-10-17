@@ -6,10 +6,30 @@
        Shell.FlyoutBehavior="Disabled"
        Title="C# Mastery">
     <TabBar>
-        <ShellContent Title="Inicio" Route="inicio" ContentTemplate="{DataTemplate pages:HomePage}" />
-        <ShellContent Title="Ruta" Route="ruta" ContentTemplate="{DataTemplate pages:CurriculumPage}" />
-        <ShellContent Title="Progreso" Route="progreso" ContentTemplate="{DataTemplate pages:ProgressPage}" />
-        <ShellContent Title="Proyectos" Route="proyectos" ContentTemplate="{DataTemplate pages:ProjectsPage}" />
-        <ShellContent Title="Ajustes" Route="ajustes" ContentTemplate="{DataTemplate pages:SettingsPage}" />
+        <ShellContent Title="Inicio" Route="inicio" ContentTemplate="{DataTemplate pages:HomePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Glyph="&#xe88a;" Size="26" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Ruta" Route="ruta" ContentTemplate="{DataTemplate pages:CurriculumPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Glyph="&#xeacd;" Size="26" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Progreso" Route="progreso" ContentTemplate="{DataTemplate pages:ProgressPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Glyph="&#xe26b;" Size="26" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Proyectos" Route="proyectos" ContentTemplate="{DataTemplate pages:ProjectsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Glyph="&#xe87b;" Size="26" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Ajustes" Route="ajustes" ContentTemplate="{DataTemplate pages:SettingsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Glyph="&#xe8b8;" Size="26" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 </Shell>

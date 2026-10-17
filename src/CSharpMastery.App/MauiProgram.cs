@@ -17,7 +17,15 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder.UseMauiApp<App>();
+        builder.UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("Nunito-Regular.ttf", "Nunito");
+                fonts.AddFont("Nunito-SemiBold.ttf", "NunitoSemi");
+                fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoXBold");
+                fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
+                fonts.AddFont("MaterialIconsRound.otf", "Icons");
+            });
 
         var services = builder.Services;
         services.AddSingleton<CurriculumCatalog>(_ => CurriculumContent.Catalog);

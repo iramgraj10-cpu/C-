@@ -5,38 +5,33 @@
              xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Views.ChoiceItemView"
              x:DataType="items:ChoiceItemViewModel">
-    <VerticalStackLayout Spacing="12">
+    <VerticalStackLayout Spacing="14">
         <views:ItemHeaderView />
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}" Spacing="8">
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}" Spacing="10">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="items:ChoiceOptionViewModel">
-                    <Border Padding="12" StrokeThickness="2" StrokeShape="RoundRectangle 8"
-                            Stroke="{Binding RevealedCorrect, Converter={StaticResource OptionStroke}}"
-                            BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectedBg}}"
-                            SemanticProperties.Description="{Binding Text}">
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="0,0,0,3"
+                            BackgroundColor="{Binding RevealedCorrect, Converter={StaticResource OptionStroke}}">
+                        <Border Padding="14,12" StrokeThickness="2" StrokeShape="RoundRectangle 16"
+                                Stroke="{Binding RevealedCorrect, Converter={StaticResource OptionStroke}}"
+                                BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectedBg}}"
+                                SemanticProperties.Description="{Binding Text}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border StrokeThickness="2" StrokeShape="RoundRectangle 8" WidthRequest="32" HeightRequest="32" VerticalOptions="Center"
+                                        Stroke="{Binding RevealedCorrect, Converter={StaticResource OptionStroke}}">
+                                    <Label Text="{Binding Letter}" FontFamily="{StaticResource FontBlack}" FontSize="15"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Style="{StaticResource Muted}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="{Binding Text}" FontFamily="{StaticResource FontSemi}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type items:ChoiceItemViewModel}}, Path=SelectCommand, x:DataType=items:ChoiceItemViewModel}" CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <Label Text="{Binding Letter}" FontAttributes="Bold" />
-                            <Label Grid.Column="1" Text="{Binding Text}" />
-                        </Grid>
                     </Border>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </VerticalStackLayout>
-        <HorizontalStackLayout Spacing="8">
-            <Button Text="Comprobar" Command="{Binding SubmitCommand}" />
-            <Button Text="Ver la respuesta" Style="{StaticResource Secondary}" Command="{Binding RevealAnswerCommand}">
-                <Button.IsVisible>
-                    <MultiBinding Converter="{StaticResource AllTrue}">
-                        <Binding Path="HasSubmitted" />
-                        <Binding Path="IsSolved" Converter="{StaticResource Not}" />
-                        <Binding Path="Settings.ShowFeedback" />
-                    </MultiBinding>
-                </Button.IsVisible>
-            </Button>
-        </HorizontalStackLayout>
         <views:ItemFooterView />
     </VerticalStackLayout>
 </ContentView>

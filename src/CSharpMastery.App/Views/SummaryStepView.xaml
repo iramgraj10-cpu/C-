@@ -1,23 +1,80 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
              xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Views.SummaryStepView"
              x:DataType="a:SummaryStepViewModel">
-    <VerticalStackLayout Spacing="12">
-        <Label Text="{Binding Title}" Style="{StaticResource Title}" />
-        <Label Text="{Binding ScoreText}" FontSize="17" />
-        <Label Text="{Binding TimeText}" Style="{StaticResource Muted}" IsVisible="{Binding TimeText, Converter={StaticResource HasValue}}" />
+    <!-- Celebración: mascota, XP, precisión, racha y meta del día; después el detalle por habilidad. -->
+    <VerticalStackLayout Spacing="16" Padding="0,12,0,0">
+        <Image x:Name="Mascot" Source="mascot_party.png" WidthRequest="170" HeightRequest="170" HorizontalOptions="Center"
+               SemanticProperties.Description="Mascota celebrando" />
+        <Label Text="{Binding Title}" Style="{StaticResource Title}" FontSize="28" HorizontalTextAlignment="Center" TextColor="{StaticResource Gold}" />
+        <Label Text="{Binding ScoreText}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="16" />
 
-        <VerticalStackLayout IsVisible="{Binding Skills.Count, Converter={StaticResource Positive}}" Spacing="6">
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+            <!-- XP -->
+            <Border StrokeThickness="2" Stroke="{StaticResource Gold}" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource Gold}" Padding="0">
+                <VerticalStackLayout>
+                    <Label Text="XP GANADA" FontFamily="{StaticResource FontBlack}" FontSize="12" TextColor="White" HorizontalTextAlignment="Center" Margin="0,6,0,4" />
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Margin="2,0,2,2" Padding="6,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label Text="&#xea0b;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Gold}" />
+                            <Label Text="{Binding Xp}" FontFamily="{StaticResource FontBlack}" FontSize="22" TextColor="{StaticResource GoldLedge}" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Precisión -->
+            <Border Grid.Column="1" StrokeThickness="2" Stroke="{StaticResource Green}" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource Green}" Padding="0">
+                <VerticalStackLayout>
+                    <Label Text="PRECISIÓN" FontFamily="{StaticResource FontBlack}" FontSize="12" TextColor="White" HorizontalTextAlignment="Center" Margin="0,6,0,4" />
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Margin="2,0,2,2" Padding="6,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label Text="&#xe838;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Green}" />
+                            <Label Text="{Binding AccuracyText}" FontFamily="{StaticResource FontBlack}" FontSize="22" TextColor="{StaticResource GreenText}" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Racha -->
+            <Border Grid.Column="2" StrokeThickness="2" Stroke="{StaticResource Flame}" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource Flame}" Padding="0">
+                <VerticalStackLayout>
+                    <Label Text="RACHA" FontFamily="{StaticResource FontBlack}" FontSize="12" TextColor="White" HorizontalTextAlignment="Center" Margin="0,6,0,4" />
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Margin="2,0,2,2" Padding="6,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label Text="&#xef55;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Flame}" />
+                            <Label Text="{Binding Streak}" FontFamily="{StaticResource FontBlack}" FontSize="22" TextColor="#E07B00" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Meta diaria -->
+        <Border Style="{StaticResource Card}">
+            <VerticalStackLayout Spacing="8">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Text="&#xea23;" Style="{StaticResource Icon}" TextColor="{StaticResource Gold}" />
+                    <Label Grid.Column="1" Text="{Binding GoalText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
+                </Grid>
+                <controls:FatProgressBar Progress="{Binding GoalProgress}" BarColor="{StaticResource Gold}" />
+            </VerticalStackLayout>
+        </Border>
+        <Label Text="{Binding TimeText}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" IsVisible="{Binding TimeText, Converter={StaticResource HasValue}}" />
+
+        <VerticalStackLayout IsVisible="{Binding HasSkills}" Spacing="8">
             <Label Text="Por habilidad" Style="{StaticResource Heading}" />
-            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="6">
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="8">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="a:SummarySkillLine">
-                        <Border Style="{StaticResource Card}" Padding="12">
+                        <Border Style="{StaticResource Card}" Padding="14,12">
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                <Label Grid.Column="1" Text="{Binding Score}" FontAttributes="Bold" />
+                                <Label Text="{Binding Title}" Style="{StaticResource Strong}" />
+                                <Label Grid.Column="1" Text="{Binding Score}" FontFamily="{StaticResource FontBlack}" TextColor="{StaticResource Brand}" />
                                 <Label Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource Muted}">
                                     <Label.FormattedText>
                                         <FormattedString>
@@ -36,16 +93,18 @@
 
         <VerticalStackLayout IsVisible="{Binding HasErrors}" Spacing="6">
             <Label Text="Errores que se repiten" Style="{StaticResource Heading}" />
-            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Errors}" Spacing="4">
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Errors}" Spacing="6">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="x:String">
-                        <Label Text="{Binding StringFormat='• {0}'}" />
+                        <Border Style="{StaticResource ErrorBox}">
+                            <Label Text="{Binding .}" />
+                        </Border>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
         </VerticalStackLayout>
 
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Notes}" Spacing="4">
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Notes}" Spacing="6">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
                     <Border Style="{StaticResource InfoBox}">
@@ -54,7 +113,5 @@
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </VerticalStackLayout>
-
-        <Button Text="Terminar" Command="{Binding FinishCommand}" HorizontalOptions="End" />
     </VerticalStackLayout>
 </ContentView>

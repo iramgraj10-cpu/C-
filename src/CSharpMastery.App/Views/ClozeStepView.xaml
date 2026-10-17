@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ClozeStepView"
+             x:DataType="a:ClozeViewModel">
+    <!-- Completar el hueco: el código con la pieza resaltada y las fichas para elegir. -->
+    <VerticalStackLayout Spacing="16">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe3c9;" Style="{StaticResource Icon}" FontSize="20" />
+            <Label Text="Completa el código" Style="{StaticResource Badge}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Label Text="{Binding Prompt}" FontFamily="{StaticResource FontBold}" FontSize="19" />
+        <controls:CodeView Code="{Binding DisplayCode}" MarkStart="{Binding BlankStart}" MarkLength="{Binding BlankLength}"
+                           MarkColor="{Binding BlankState, Converter={StaticResource Chip}, ConverterParameter=mark}" />
+        <FlexLayout BindableLayout.ItemsSource="{Binding Options}" Wrap="Wrap" JustifyContent="Center">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="a:TokenChipViewModel">
+                    <Border Margin="5" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,0,0,3"
+                            BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=ledge}">
+                        <Border StrokeThickness="2" StrokeShape="RoundRectangle 14" Padding="18,12" MinimumWidthRequest="64"
+                                Stroke="{Binding State, Converter={StaticResource Chip}, ConverterParameter=border}"
+                                BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=bg}"
+                                SemanticProperties.Description="{Binding Text}">
+                            <Label Text="{Binding Text}" FontFamily="{StaticResource MonoFont}" FontSize="17" FontAttributes="Bold" HorizontalTextAlignment="Center"
+                                   TextColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=text}" />
+                        </Border>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type a:ClozeViewModel}}, Path=ChooseCommand, x:DataType=a:ClozeViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </FlexLayout>
+    </VerticalStackLayout>
+</ContentView>

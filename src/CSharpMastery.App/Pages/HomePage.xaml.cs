@@ -15,6 +15,11 @@ public partial class HomePage : HomePageBase
         if (!await ViewModel.LoadAsync())
         {
             await Shell.Current.GoToAsync(Routes.Onboarding);
+            return;
         }
+
+        // La mascota da un saltito al volver al inicio.
+        await Mascot.TranslateToAsync(0, -10, 160, Easing.CubicOut);
+        await Mascot.TranslateToAsync(0, 0, 220, Easing.BounceOut);
     }
 }

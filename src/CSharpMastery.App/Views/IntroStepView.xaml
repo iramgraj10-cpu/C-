@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.IntroStepView"
+             x:DataType="a:IntroStepViewModel">
+    <!-- Portada de la lección: mascota, unidad, título y objetivo. -->
+    <VerticalStackLayout Spacing="14" Padding="0,24,0,0" HorizontalOptions="Center" MaximumWidthRequest="520">
+        <Image Source="mascot_happy.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center"
+               SemanticProperties.Description="Mascota de C# Mastery sonriendo" />
+        <Label Text="{Binding UnitTitle}" Style="{StaticResource Badge}" HorizontalTextAlignment="Center" />
+        <Label Text="{Binding Title}" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
+        <Border Style="{StaticResource Card}" Padding="16,14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Label Text="&#xe153;" Style="{StaticResource Icon}" TextColor="{StaticResource Brand}" VerticalOptions="Start" />
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label Text="Lo que vas a lograr" Style="{StaticResource Muted}" />
+                    <Label Text="{Binding Objective}" Style="{StaticResource Strong}" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource BlueSoft}, Dark={StaticResource BlueSoftDark}}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,6">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="&#xe425;" Style="{StaticResource Icon}" FontSize="18" TextColor="{StaticResource Blue}" />
+                    <Label Text="{Binding MinutesText}" Style="{StaticResource Strong}" TextColor="{StaticResource BlueLedge}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource BrandSoft}, Dark={StaticResource BrandSoftDark}}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,6">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="&#xe913;" Style="{StaticResource Icon}" FontSize="18" />
+                    <Label Text="Aprendes haciendo" Style="{StaticResource Strong}" TextColor="{StaticResource BrandLedge}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

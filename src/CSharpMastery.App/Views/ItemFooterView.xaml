@@ -4,40 +4,22 @@
              xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Views.ItemFooterView"
              x:DataType="items:ItemViewModel">
+    <!-- Pistas progresivas. La corrección y «Continuar» van en el pie fijo de la pantalla. -->
     <VerticalStackLayout Spacing="10">
-        <!-- Pistas progresivas -->
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RevealedHints}" Spacing="6">
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RevealedHints}" Spacing="8">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
-                    <Border Style="{StaticResource InfoBox}">
-                        <Label Text="{Binding StringFormat='Pista: {0}'}" />
+                    <Border StrokeThickness="2" StrokeShape="RoundRectangle 14" Padding="14" Stroke="{StaticResource Gold}"
+                            BackgroundColor="{AppThemeBinding Light=#FFF7D6, Dark=#3A3214}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Text="&#xe0f0;" Style="{StaticResource Icon}" TextColor="{StaticResource GoldLedge}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding .}" />
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </VerticalStackLayout>
         <Button Text="{Binding HintButtonText}" Style="{StaticResource Secondary}" HorizontalOptions="Start"
                 Command="{Binding RevealHintCommand}" IsVisible="{Binding HasMoreHints}" />
-
-        <!-- Retroalimentación inmediata -->
-        <Border Padding="12" StrokeThickness="0" StrokeShape="RoundRectangle 8"
-                BackgroundColor="{Binding FeedbackPositive, Converter={StaticResource FeedbackBg}}"
-                IsVisible="{Binding Feedback, Converter={StaticResource HasValue}}">
-            <Label Text="{Binding Feedback}" SemanticProperties.Description="{Binding Feedback}" />
-        </Border>
-
-        <VerticalStackLayout IsVisible="{Binding ShowExplanation}" Spacing="4">
-            <Label Text="Explicación" Style="{StaticResource Heading}" />
-            <Label Text="{Binding Explanation}" />
-        </VerticalStackLayout>
-
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Messages}" Spacing="4">
-            <BindableLayout.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                    <Label Text="{Binding StringFormat='• {0}'}" Style="{StaticResource Muted}" />
-                </DataTemplate>
-            </BindableLayout.ItemTemplate>
-        </VerticalStackLayout>
-
-        <Button Text="Continuar" Command="{Binding ContinueCommand}" IsVisible="{Binding CanContinue}" HorizontalOptions="End" />
     </VerticalStackLayout>
 </ContentView>

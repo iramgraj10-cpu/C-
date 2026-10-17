@@ -63,7 +63,9 @@ El banco de contenidos es código C# (`src/CSharpMastery.Content`), no archivos 
 - Shell con cinco secciones: Inicio, Ruta, Progreso, Proyectos y Ajustes, más la bienvenida inicial.
 - Bindings compilados (`x:DataType`); en Release un binding roto es error de compilación (`XC0045`, `XC0022`, `XC0025` como errores).
 - Tema claro, oscuro o del sistema; descripciones semánticas para lectores de pantalla en los controles principales.
-- Atajos de escritorio en la pantalla de actividad: Ctrl+Enter comprueba, F5 ejecuta, Ctrl+H pide pista, Ctrl+→ continúa.
+- Pantalla de actividad: barra superior (cerrar, progreso, racha de aciertos y XP), el paso actual y un pie fijo con «Comprobar / Continuar» y la franja de retroalimentación. Cada paso es un `StepViewModel` (Presentation) con su vista (`App/Views`): tarjeta, hueco, ordenar líneas, recorrido, encontrar el error, comparar, pregunta, respuesta corta, código y celebración. Los pasos interactivos los genera `Learning/Interactive/LessonFlowBuilder` (ADR 0007).
+- Controles propios: `ChunkyButton` (botón en relieve), `FatProgressBar`, `RingProgress` (meta diaria) y `CodeView` (código con números de línea y tramo resaltado).
+- Atajos de escritorio en la pantalla de actividad: Ctrl+Enter comprueba o continúa, F5 ejecuta, Ctrl+H pide pista.
 - Resaltado de sintaxis propio (`Presentation/Highlighting/CSharpHighlighter.cs`), sin WebView.
 
 ## Decisiones

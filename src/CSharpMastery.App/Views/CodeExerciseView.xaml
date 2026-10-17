@@ -13,9 +13,9 @@
         <!-- Motor no disponible -->
         <Border Style="{StaticResource InfoBox}" IsVisible="{Binding EngineAvailable, Converter={StaticResource Not}}">
             <VerticalStackLayout Spacing="8">
-                <Label Text="Ejecución no disponible" FontAttributes="Bold" />
+                <Label Text="Ejecución no disponible en este dispositivo" Style="{StaticResource Strong}" />
                 <Label Text="{Binding EngineMessage}" />
-                <Button Text="Comparar con la solución y autoevaluarme" Style="{StaticResource Secondary}" HorizontalOptions="Start" Command="{Binding StartSelfCheckCommand}" />
+                <Label Text="Escribe tu solución y usa «Ver solución y autoevaluar» abajo para compararla." Style="{StaticResource Muted}" IsVisible="{Binding SelfCheckVisible, Converter={StaticResource Not}}" />
                 <HorizontalStackLayout Spacing="8" IsVisible="{Binding SelfCheckVisible}">
                     <Button Text="Lo resolví" Command="{Binding SelfAssessCommand}" CommandParameter="true" />
                     <Button Text="No lo resolví" Style="{StaticResource Secondary}" Command="{Binding SelfAssessCommand}" CommandParameter="false" />
@@ -31,7 +31,7 @@
                     <DataTemplate x:DataType="dom:CodeTestCase">
                         <Border Style="{StaticResource CodeBox}" Padding="10">
                             <VerticalStackLayout Spacing="2">
-                                <Label Text="{Binding Name}" Style="{StaticResource CodeLabel}" FontAttributes="Bold" />
+                                <Label Text="{Binding Name}" Style="{StaticResource CodeLabel}" FontFamily="{StaticResource FontBold}" />
                                 <Label Text="{Binding Check, StringFormat='Llamada: {0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Check, Converter={StaticResource HasValue}}" />
                                 <Label Text="{Binding Input, StringFormat='Entrada:&#10;{0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Input, Converter={StaticResource HasValue}}" />
                                 <Label Text="{Binding Expected, StringFormat='Resultado esperado:&#10;{0}'}" Style="{StaticResource CodeLabel}" IsVisible="{Binding Expected, Converter={StaticResource HasValue}}" />
@@ -62,16 +62,11 @@
 
         <FlexLayout Wrap="Wrap" AlignItems="Center">
             <Button Text="Ejecutar" Style="{StaticResource Secondary}" Margin="0,0,8,8" Command="{Binding RunCommand}" ToolTipProperties.Text="Ejecutar (F5)" />
-            <Button Text="{Binding CheckButtonText}" Margin="0,0,8,8" Command="{Binding CheckCommand}" ToolTipProperties.Text="Comprobar (Ctrl+Enter)" />
             <Button Text="Restablecer" Style="{StaticResource Link}" Margin="0,0,8,8" Command="{Binding ResetCodeCommand}" />
             <Button Text="Ver solución" Style="{StaticResource Link}" Margin="0,0,8,8" Command="{Binding ShowSolutionCommand}" IsVisible="{Binding CanShowSolution}" />
             <ActivityIndicator IsRunning="{Binding IsRunning}" IsVisible="{Binding IsRunning}" Margin="0,0,8,8" />
         </FlexLayout>
         <Label Text="{Binding SolutionGateText}" Style="{StaticResource Muted}" IsVisible="{Binding SolutionGateText, Converter={StaticResource HasValue}}" />
-
-        <Border Style="{StaticResource InfoBox}" IsVisible="{Binding ResultSummary, Converter={StaticResource HasValue}}">
-            <Label Text="{Binding ResultSummary}" />
-        </Border>
 
         <!-- Errores de compilación explicados -->
         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Diagnostics}" Spacing="6">
@@ -79,7 +74,7 @@
                 <DataTemplate x:DataType="items:DiagnosticDisplay">
                     <Border Style="{StaticResource ErrorBox}">
                         <VerticalStackLayout Spacing="2">
-                            <Label FontAttributes="Bold">
+                            <Label Style="{StaticResource Strong}">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="{Binding Code}" />
@@ -100,9 +95,9 @@
         <VerticalStackLayout BindableLayout.ItemsSource="{Binding TestResults}" Spacing="6">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="items:TestDisplay">
-                    <Border Padding="10" StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="{Binding Passed, Converter={StaticResource FeedbackBg}}">
+                    <Border Padding="12" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Passed, Converter={StaticResource FeedbackBg}}">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Title}" FontAttributes="Bold" />
+                            <Label Text="{Binding Title}" Style="{StaticResource Strong}" />
                             <Label Text="{Binding Message}" IsVisible="{Binding Message, Converter={StaticResource HasValue}}" />
                             <Label Text="{Binding Input, StringFormat='Entrada: {0}'}" FontFamily="{StaticResource MonoFont}" FontSize="13" IsVisible="{Binding Input, Converter={StaticResource HasValue}}" />
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding ShowComparison}">

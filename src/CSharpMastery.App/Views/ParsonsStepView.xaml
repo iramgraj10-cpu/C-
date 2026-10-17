@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ParsonsStepView"
+             x:DataType="a:ParsonsViewModel">
+    <!-- Ordenar líneas: toca una línea del banco para colocarla en el siguiente hueco; toca una colocada para quitarla. -->
+    <VerticalStackLayout Spacing="16">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe8d5;" Style="{StaticResource Icon}" FontSize="20" />
+            <Label Text="Ordena las líneas" Style="{StaticResource Badge}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Label Text="{Binding Prompt}" FontFamily="{StaticResource FontBold}" FontSize="19" />
+
+        <Border Style="{StaticResource CodeBox}" Padding="12">
+            <ScrollView Orientation="Horizontal">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Slots}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="a:ParsonsSlotViewModel">
+                            <Grid MinimumHeightRequest="22">
+                                <Label FormattedText="{Binding Text, Converter={StaticResource Highlight}}" Style="{StaticResource CodeLabel}"
+                                       IsVisible="{Binding IsFixed}" VerticalOptions="Center" Opacity="0.85" />
+                                <!-- Hueco vacío -->
+                                <Border IsVisible="{Binding IsEmpty}" Margin="{Binding Indent, Converter={StaticResource IndentMargin}}"
+                                        Stroke="#6F6A99" StrokeThickness="2" StrokeDashArray="4,3" StrokeShape="RoundRectangle 10"
+                                        HeightRequest="38" MinimumWidthRequest="200" HorizontalOptions="Start"
+                                        SemanticProperties.Description="Hueco vacío" />
+                                <!-- Línea colocada -->
+                                <Border IsVisible="{Binding Filled, Converter={StaticResource HasValue}}" Margin="{Binding Indent, Converter={StaticResource IndentMargin}}"
+                                        HorizontalOptions="Start" StrokeThickness="2" StrokeShape="RoundRectangle 10" Padding="10,7"
+                                        Stroke="{Binding State, Converter={StaticResource Chip}, ConverterParameter=border}"
+                                        BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=bg}"
+                                        SemanticProperties.Description="{Binding Filled.Text}" SemanticProperties.Hint="Toca para quitarla">
+                                    <Label Text="{Binding Filled.Text}" FontFamily="{StaticResource MonoFont}" FontSize="14" LineBreakMode="NoWrap"
+                                           TextColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=text}" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type a:ParsonsViewModel}}, Path=RemoveCommand, x:DataType=a:ParsonsViewModel}" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Bank}" Spacing="8">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="a:ParsonsBankLineViewModel">
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="0,0,0,3"
+                            BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=ledge}">
+                        <Border StrokeThickness="2" StrokeShape="RoundRectangle 12" Padding="12,10"
+                                Stroke="{Binding State, Converter={StaticResource Chip}, ConverterParameter=border}"
+                                BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=bg}"
+                                SemanticProperties.Description="{Binding Text}" SemanticProperties.Hint="Toca para colocarla">
+                            <Label Text="{Binding Text}" FontFamily="{StaticResource MonoFont}" FontSize="14" LineBreakMode="WordWrap"
+                                   TextColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=text}" />
+                        </Border>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type a:ParsonsViewModel}}, Path=PlaceCommand, x:DataType=a:ParsonsViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

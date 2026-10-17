@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.SpotBugStepView"
+             x:DataType="a:SpotBugViewModel">
+    <!-- Encontrar el error: toca la línea que falla. -->
+    <VerticalStackLayout Spacing="14">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe868;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Red}" />
+            <Label Text="Encuentra el error" Style="{StaticResource Badge}" TextColor="{StaticResource RedText}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Label Text="{Binding Description}" FontFamily="{StaticResource FontBold}" FontSize="19" />
+        <Label Text="Toca la línea que tiene el problema." Style="{StaticResource Muted}" />
+
+        <Border Style="{StaticResource CodeBox}" Padding="8,10">
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="2">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="a:CodeLineViewModel">
+                        <Border StrokeThickness="2" Stroke="Transparent" StrokeShape="RoundRectangle 8" Padding="6,6" BackgroundColor="Transparent"
+                                SemanticProperties.Description="{Binding Text}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding State}" Value="{x:Static a:ChipState.Selected}">
+                                    <Setter Property="BackgroundColor" Value="#1F4D66" />
+                                    <Setter Property="Stroke" Value="#1CB0F6" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding State}" Value="{x:Static a:ChipState.Correct}">
+                                    <Setter Property="BackgroundColor" Value="#24461A" />
+                                    <Setter Property="Stroke" Value="#46C21C" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding State}" Value="{x:Static a:ChipState.Wrong}">
+                                    <Setter Property="BackgroundColor" Value="#5A2228" />
+                                    <Setter Property="Stroke" Value="#FF4B4B" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Grid ColumnDefinitions="26,*" ColumnSpacing="8">
+                                <Label Text="{Binding Number}" Style="{StaticResource CodeLabel}" TextColor="{StaticResource CodeLineNumber}" HorizontalTextAlignment="End" />
+                                <Label Grid.Column="1" FormattedText="{Binding Text, Converter={StaticResource Highlight}}" Style="{StaticResource CodeLabel}" LineBreakMode="WordWrap" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type a:SpotBugViewModel}}, Path=TapCommand, x:DataType=a:SpotBugViewModel}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

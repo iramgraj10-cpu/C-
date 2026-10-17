@@ -253,6 +253,8 @@ public abstract partial class ItemViewModel : StepViewModel
             {
                 Messages.Add(message);
             }
+
+            UpdateFooter();
         }
     }
 }

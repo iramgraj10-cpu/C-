@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.CompareCodeStepView"
+             x:DataType="a:CompareCodeViewModel">
+    <!-- Comparar: ¿cuál de las dos versiones es la correcta? -->
+    <VerticalStackLayout Spacing="14">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe868;" Style="{StaticResource Icon}" FontSize="22" TextColor="{StaticResource Red}" />
+            <Label Text="¿Cuál está bien?" Style="{StaticResource Badge}" TextColor="{StaticResource RedText}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Label Text="{Binding Description}" FontFamily="{StaticResource FontBold}" FontSize="19" />
+        <Label Text="Elige la versión que funciona correctamente." Style="{StaticResource Muted}" />
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Options}" Spacing="12">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="a:CodeOptionViewModel">
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="0,0,0,4"
+                            BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=ledge}">
+                        <Border StrokeThickness="2" StrokeShape="RoundRectangle 16" Padding="12"
+                                Stroke="{Binding State, Converter={StaticResource Chip}, ConverterParameter=border}"
+                                BackgroundColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=bg}"
+                                SemanticProperties.Description="{Binding Label, StringFormat='Opción {0}'}">
+                            <VerticalStackLayout Spacing="8">
+                                <Border StrokeThickness="2" StrokeShape="RoundRectangle 8" Padding="10,2" HorizontalOptions="Start"
+                                        Stroke="{Binding State, Converter={StaticResource Chip}, ConverterParameter=border}">
+                                    <Label Text="{Binding Label}" FontFamily="{StaticResource FontBlack}" FontSize="15"
+                                           TextColor="{Binding State, Converter={StaticResource Chip}, ConverterParameter=text}" />
+                                </Border>
+                                <controls:CodeView Code="{Binding Code}" InputTransparent="True" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type a:CompareCodeViewModel}}, Path=ChooseCommand, x:DataType=a:CompareCodeViewModel}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

@@ -29,6 +29,13 @@ public sealed partial class SettingsViewModel(
     public IReadOnlyList<OptionDisplay<StartingLevel>> Levels { get; } =
         Enum.GetValues<StartingLevel>().Select(l => new OptionDisplay<StartingLevel>(l, Labels.StartingLevel(l))).ToList();
 
+    /// <summary>Metas diarias de XP para elegir.</summary>
+    public IReadOnlyList<OptionDisplay<int>> GoalOptions { get; } = GamificationService.GoalOptions
+        .Select(g => new OptionDisplay<int>(g, $"{GoalName(g)} · {g} XP")).ToList();
+
+    [ObservableProperty]
+    public partial int DailyGoal { get; set; } = GamificationService.DefaultGoal;
+
     [ObservableProperty]
     public partial string DisplayName { get; set; } = "";
 
@@ -96,7 +103,27 @@ public sealed partial class SettingsViewModel(
             SelectedLevel = Levels.First(l => l.Value == _profile.InitialLevel);
             PreferredMinutes = _profile.PreferredSessionMinutes.ToString(CultureInfo.InvariantCulture);
             LoadCriteria(await learning.GetCriteriaAsync());
+            DailyGoal = await learning.Gamification.GetDailyGoalAsync();
         }, "No se pudieron cargar los ajustes.");
+    }
+
+    private static string GoalName(int xp) => xp switch
+    {
+        <= 20 => "Tranquila",
+        <= 50 => "Normal",
+        <= 100 => "Seria",
+        _ => "Intensa",
+    };
+
+    [RelayCommand]
+    private async Task SetGoalAsync(OptionDisplay<int> option)
+    {
+        await RunSafeAsync(async () =>
+        {
+            await learning.Gamification.SetDailyGoalAsync(option.Value);
+            DailyGoal = option.Value;
+            StatusMessage = $"Meta diaria: {option.Value} XP.";
+        }, "No se pudo guardar la meta diaria.");
     }
 
     private void LoadCriteria(MasteryCriteria c)

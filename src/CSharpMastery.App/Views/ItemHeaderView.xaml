@@ -5,14 +5,16 @@
              xmlns:items="clr-namespace:CSharpMastery.Presentation.ViewModels.Items;assembly=CSharpMastery.Presentation"
              x:Class="CSharpMastery.App.Views.ItemHeaderView"
              x:DataType="items:ItemViewModel">
-    <VerticalStackLayout Spacing="10">
+    <VerticalStackLayout Spacing="12">
         <Label Text="{Binding PurposeLabel}" Style="{StaticResource Badge}" />
-        <Label Text="{Binding Prompt}" FontSize="17" SemanticProperties.HeadingLevel="Level2" />
+        <Label Text="{Binding Prompt}" FontFamily="{StaticResource FontBold}" FontSize="19" SemanticProperties.HeadingLevel="Level2" />
         <controls:CodeView Code="{Binding Code}" IsVisible="{Binding HasCode}" />
-        <VerticalStackLayout IsVisible="{Binding AskConfidence}" Spacing="4">
-            <Label Text="Antes de responder: ¿qué tan seguro estás?" Style="{StaticResource Muted}" />
-            <Picker Title="Elige tu confianza" ItemsSource="{Binding ConfidenceOptions}"
-                    SelectedItem="{Binding SelectedConfidence}" HorizontalOptions="Start" WidthRequest="260" />
-        </VerticalStackLayout>
+        <Border IsVisible="{Binding AskConfidence}" Style="{StaticResource InfoBox}">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Antes de responder: ¿qué tan seguro estás?" Style="{StaticResource Strong}" />
+                <Picker Title="Elige tu confianza" ItemsSource="{Binding ConfidenceOptions}"
+                        SelectedItem="{Binding SelectedConfidence}" HorizontalOptions="Fill" />
+            </VerticalStackLayout>
+        </Border>
     </VerticalStackLayout>
 </ContentView>

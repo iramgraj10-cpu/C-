@@ -12,6 +12,10 @@
 | Plantilla de sesión 5/8/7/15/7/3 escalada y redistribuida según el estado | Verificado (`SessionTests`) |
 | Pausa y reanudación en el mismo paso; solo cuenta tiempo activo; inactividad larga no cuenta; aviso a los 90 minutos | Verificado (`SessionTests`, `FlowTests`) |
 | Repasos vencidos primero, intercalado de temas practicados, refuerzo de errores recurrentes | Verificado (`SessionTests`) |
+| Lección interactiva: tarjetas de una idea, completar el hueco, recorrido del ejemplo línea a línea, ordenar líneas, encontrar el error, predicción, recuerdo y ejercicio guiado (ADR 0007) | Verificado (`FlowTests`) |
+| Cada hueco y cada ejercicio de ordenar tiene una sola respuesta correcta: los distractores se ejecutan con el motor real y deben fallar o cambiar la salida | Verificado (`InteractiveValidationTests`) |
+| Pie fijo «Comprobar / Continuar» con franja verde o roja, «Reintentar» y «Ver la respuesta» | Verificado el modelo (`FlowTests`); la vista compila |
+| XP por acertar, racha de días, meta diaria configurable (20/50/100/150 XP) | Verificado (`GamificationTests`, `FlowTests`) |
 | Lección de 10 partes con retirada gradual de ayuda (ejemplo → guiado → independiente → transferencia) | Verificado (`ContentValidationTests`, `FlowTests`) |
 | Pistas progresivas; la solución exige intentar y pedir pista | Verificado (`FlowTests`) |
 | Retroalimentación específica por opción y tolerancia en respuestas cortas | Verificado (`AssessmentTests`) |
@@ -40,9 +44,10 @@
 | SQLite local con migraciones; base más nueva se rechaza | Verificado (`PersistenceTests`) |
 | Exportar e importar progreso; respaldo futuro se rechaza | Verificado |
 | Panel de progreso con secciones separadas (visto, practicado, dominado, retenido, hábitos, errores, calibración, por habilidad) | Verificado el modelo (`FlowTests`); la vista compila |
-| Mapa de la ruta con estado por habilidad y prerrequisitos | La vista compila |
+| Camino de lecciones en zigzag por nivel y unidad, con nodo por habilidad (bloqueada, disponible, en curso, dominada, retenida) y la siguiente recomendada | Verificado el modelo (`FlowTests`); la vista compila |
+| Diseño propio con mascota, botones en relieve, tipografía Nunito e íconos Material; celebración al terminar | Compila; no visto en pantalla |
 | Tema claro, oscuro o del sistema | Compila |
-| Atajos de teclado en escritorio (Ctrl+Enter, F5, Ctrl+H, Ctrl+→) | Compila; no probado en Windows |
+| Atajos de teclado en escritorio (Ctrl+Enter comprueba o continúa, F5, Ctrl+H) | Compila; no probado en Windows |
 | Resaltado de sintaxis sin WebView | Compila |
 | Paquete Android (APK y AAB) | Compilado en Release (ver `BUILD-RESULTS.md`); no ejecutado en un dispositivo o emulador |
 
@@ -55,7 +60,7 @@
 | Nivel 6: tareas, async/await, cancelación, concurrencia, hilos, HTTP, JSON, SQLite, seguridad | Temario definido. Varios temas requieren E/S real, que la política del motor impide; habrá que diseñar dobles en memoria |
 | Compilar y probar en Windows | Requiere Windows con el workload de MAUI |
 | Compilar y probar en iOS y macOS | Requiere macOS con Xcode. En Mac Catalyst el lanzamiento del proceso ejecutor no está verificado |
-| Probar el APK en un dispositivo o emulador | No había emulador disponible |
+| Probar el APK en un dispositivo o emulador | No había emulador disponible; el diseño nuevo no se ha visto en pantalla |
 | Pruebas de interfaz automatizadas (Appium o similar) | No implementadas |
 | Instalador MSIX firmado | Documentado en `PACKAGING.md`; la configuración actual es «unpackaged» |
 | Sandbox del sistema operativo para el ejecutor (AppContainer en Windows) | No implementado; ver ADR 0003 |

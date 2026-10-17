@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:CSharpMastery.App.Controls"
+             xmlns:a="clr-namespace:CSharpMastery.Presentation.ViewModels.Activity;assembly=CSharpMastery.Presentation"
+             xmlns:d="clr-namespace:CSharpMastery.Presentation.ViewModels.Display;assembly=CSharpMastery.Presentation"
+             x:Class="CSharpMastery.App.Views.ConceptCardView"
+             x:DataType="a:ConceptCardViewModel">
+    <!-- Una idea corta: unas líneas de texto y, casi siempre, un fragmento de código. -->
+    <VerticalStackLayout Spacing="14">
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="&#xe0f0;" Style="{StaticResource Icon}" TextColor="{StaticResource Gold}" FontSize="22" />
+            <Label Text="{Binding CounterText}" Style="{StaticResource Badge}" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Blocks}" Spacing="14">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="d:ContentBlockDisplay">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding Text}" IsVisible="{Binding IsParagraph}" FontSize="17" LineHeight="1.25" />
+                        <controls:CodeView Code="{Binding Text}" Caption="{Binding Caption}" IsVisible="{Binding IsCode}" />
+                        <Border IsVisible="{Binding IsCallout}" StrokeThickness="2" StrokeShape="RoundRectangle 14" Padding="14"
+                                Stroke="{StaticResource Gold}" BackgroundColor="{AppThemeBinding Light=#FFF7D6, Dark=#3A3214}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding CalloutLabel}" Style="{StaticResource Badge}" TextColor="{AppThemeBinding Light=#9A6B00, Dark=#FFC800}" />
+                                <Label Text="{Binding Text}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

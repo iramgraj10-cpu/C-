@@ -4,7 +4,7 @@ Aplicación nativa (.NET MAUI) para aprender C# desde cero hasta un nivel profes
 
 Es una aplicación de estudio personal: funciona sin conexión, guarda el progreso en una base SQLite local en el propio dispositivo y no tiene servidor, cuentas ni telemetría. Ninguna función esencial usa servicios de IA de pago.
 
-## Estado de esta versión (0.1.0)
+## Estado de esta versión (0.2.0)
 
 | Área | Estado |
 |---|---|
@@ -13,7 +13,10 @@ Es una aplicación de estudio personal: funciona sin conexión, guarda el progre
 | Niveles 5 y 6 | Solo temario; la app los muestra como «contenido en preparación» |
 | Nivel 7 | 3 proyectos integradores con 4 hitos evaluados cada uno y rúbrica |
 | Motor de ejecución | Proceso separado con límites (escritorio). En Android/iOS no hay compilador: autoevaluación marcada como no verificada |
-| Pruebas automatizadas | 115 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
+| Lecciones | Interactivas: tarjetas cortas, completar código, ordenar líneas, recorrido del ejemplo y encontrar el error, validados con el motor real (ADR 0007) |
+| Motivación | XP por acertar, racha de días, meta diaria y celebración al terminar |
+| Pruebas automatizadas | 125 pruebas, todas pasan (ver `docs/BUILD-RESULTS.md`) |
+| Diseño | Nuevo en 0.2.0; compila, pero no se ha visto en pantalla (no había emulador) |
 | Compilación verificada | Bibliotecas, XAML en Release y paquete Android (APK y AAB) en Linux |
 | Sin verificar | Windows, iOS y macOS (no hay herramientas para esas plataformas en el entorno donde se construyó) |
 
@@ -21,6 +24,7 @@ El detalle está en [`docs/FEATURES.md`](docs/FEATURES.md).
 
 ## Cómo enseña
 
+- **Aprender haciendo**: cada lección se recorre con pasos cortos que piden una acción (completar, ordenar, encontrar el error) y corrigen al instante. Los apuntes completos quedan para consultar.
 - **Recuperación activa**: cada sesión empieza recordando, no releyendo.
 - **Repetición espaciada** con una variante documentada de SM-2 por habilidad (ver ADR 0004).
 - **Ejemplos resueltos con retirada gradual de ayuda**: ejemplo completo → ejercicio guiado → independiente → transferencia.
@@ -79,3 +83,9 @@ En Windows, con Visual Studio 2022/2026 y el workload de MAUI, abrir `CSharpMast
 - Android e iOS no permiten compilar y ejecutar C# arbitrario dentro de la app; allí los ejercicios de código se autoevalúan y esa evidencia no cuenta para el dominio.
 - Las compilaciones para Windows, iOS y macOS no se han ejecutado; los proyectos están configurados pero sin verificar.
 - El APK de esta versión está firmado con la clave de depuración. Para distribuirlo hay que firmarlo con una clave propia (ver `docs/PACKAGING.md`).
+
+## Recursos de terceros
+
+- Tipografía [Nunito](https://github.com/googlefonts/nunito), licencia SIL Open Font License 1.1 (`src/CSharpMastery.App/Resources/Fonts/Nunito-OFL.txt`).
+- Íconos [Material Icons Round](https://github.com/google/material-design-icons), licencia Apache 2.0 (`src/CSharpMastery.App/Resources/Fonts/MaterialIcons-LICENSE.txt`).
+- La mascota y el ícono de la app son dibujos propios de este proyecto.
