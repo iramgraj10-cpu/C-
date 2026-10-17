@@ -41,9 +41,18 @@ jobs:
           }
 
       - name: Publicar la app de escritorio
-        run: >
-          dotnet publish src/CSharpMastery.App -f net10.0-windows10.0.19041.0 -c Release
-          -p:RuntimeIdentifier=win-x64 -p:SelfContained=true -o publish/CSharpMastery-windows-x64
+        shell: pwsh
+        run: |
+          dotnet publish src/CSharpMastery.App -f net10.0-windows10.0.19041.0 -c Release `
+            -p:RuntimeIdentifier=win-x64 -p:SelfContained=true -o publish/CSharpMastery-windows-x64 2>&1 | Tee-Object -FilePath publicar.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            # Los errores de compilación se muestran como anotaciones (se leen sin descargar el registro).
+            $errores = Select-String -Path publicar.log -Pattern ': error |error MSB|error NETSDK|error XC|error WMC' | Select-Object -ExpandProperty Line -Unique | Select-Object -First 10
+            foreach ($e in $errores) { Write-Output "::error title=Publicar::$($e.Trim() -replace '%','%25')" }
+            if (-not $errores) { Get-Content publicar.log -Tail 15 | ForEach-Object { Write-Output "::error title=Publicar (final del registro)::$($_ -replace '%','%25')" } }
+            exit $code
+          }
 
       - name: Comprobar que el ejecutor de código quedó junto a la app
         shell: pwsh
