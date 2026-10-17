@@ -73,6 +73,16 @@ public static class InProcessRunner
         }
     }
 
+    /// <summary>Solo compila (y aplica la política de API) sin ejecutar nada: útil para descartar variantes inválidas.</summary>
+    public static bool Compiles(string code)
+    {
+        lock (Gate)
+        {
+            var compilation = CodeCompiler.Compile(new ExecutionRequest { Code = code, Mode = CodeMode.Program });
+            return compilation.Violations.Count == 0 && compilation.Assembly is not null;
+        }
+    }
+
     public static ExecutionResult RunProgram(string code, string? stdin = null) =>
         Execute(new ExecutionRequest { Code = code, Mode = CodeMode.Program, Stdin = stdin });
 }

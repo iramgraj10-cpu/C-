@@ -10,6 +10,9 @@ public static class CurriculumContent
 
     public static CurriculumCatalog Catalog => Cached.Value;
 
+    /// <summary>Claves de pasos interactivos generados que no deben usarse (ver <see cref="InteractiveExclusionList"/>).</summary>
+    public static IReadOnlySet<string> InteractiveExclusions => InteractiveExclusionList.Keys;
+
     public static CurriculumCatalog Create()
     {
         var registry = new ContentRegistry();
