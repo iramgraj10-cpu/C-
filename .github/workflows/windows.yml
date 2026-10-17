@@ -22,7 +22,23 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Pruebas (incluye el motor de ejecución real en Windows)
-        run: dotnet test tests/CSharpMastery.Tests -c Release
+        run: dotnet test tests/CSharpMastery.Tests -c Release --logger "trx;LogFileName=pruebas.trx" --results-directory resultados
+
+      # Muestra cada prueba fallida como anotación del job (se leen sin descargar el registro completo).
+      - name: Resumen de pruebas fallidas
+        if: failure()
+        shell: pwsh
+        run: |
+          $trx = Get-ChildItem resultados -Filter *.trx -Recurse | Select-Object -First 1
+          if (-not $trx) { Write-Output "::error title=Sin resultados::No se generó el archivo de resultados"; exit 0 }
+          [xml]$x = Get-Content $trx.FullName
+          $fallidas = $x.TestRun.Results.UnitTestResult | Where-Object { $_.outcome -eq 'Failed' }
+          Write-Output "::warning title=Pruebas fallidas::$(@($fallidas).Count) de $($x.TestRun.ResultSummary.Counters.total)"
+          foreach ($t in $fallidas) {
+            $msg = ($t.Output.ErrorInfo.Message + ' ' + $t.Output.StdOut) -replace '%','%25' -replace "`r",'' -replace "`n",'%0A'
+            if ($msg.Length -gt 3500) { $msg = $msg.Substring(0, 3500) }
+            Write-Output "::error title=$($t.testName)::$msg"
+          }
 
       - name: Publicar la app de escritorio
         run: >

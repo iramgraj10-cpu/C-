@@ -1,0 +1,8 @@
+# El contenido de las lecciones vive en literales de cadena del código: con CRLF en Windows, los textos y las
+# posiciones de los huecos cambiarían. Se fuerza LF en todo el texto para que el resultado sea igual en cualquier sistema.
+* text=auto eol=lf
+*.png binary
+*.otf binary
+*.ttf binary
+*.ico binary
+*.jar binary
