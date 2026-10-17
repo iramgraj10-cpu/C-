@@ -71,6 +71,7 @@
     </PropertyGroup>
     <MSBuild Projects="..\CSharpMastery.Runner\CSharpMastery.Runner.csproj"
              Targets="Publish"
+             RemoveProperties="TargetFramework;TargetFrameworks"
              Properties="Configuration=$(Configuration);RuntimeIdentifier=$(_RunnerRid);SelfContained=true;PublishDir=$(OutDir)runner\" />
   </Target>
 
@@ -83,6 +84,7 @@
     </PropertyGroup>
     <MSBuild Projects="..\CSharpMastery.Runner\CSharpMastery.Runner.csproj"
              Targets="Publish"
+             RemoveProperties="TargetFramework;TargetFrameworks"
              Properties="Configuration=$(Configuration);RuntimeIdentifier=$(_RunnerRid);SelfContained=true;PublishDir=$(PublishDir)runner\" />
   </Target>
 </Project>
