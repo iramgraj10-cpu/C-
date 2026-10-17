@@ -14,7 +14,7 @@
 
             <!-- Portada -->
             <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                <Image Source="mascot_happy.png" WidthRequest="120" HeightRequest="120" HorizontalOptions="Center" SemanticProperties.Description="Mascota" />
+                <Image Source="mascot_main.png" WidthRequest="120" HeightRequest="120" HorizontalOptions="Center" SemanticProperties.Description="Mascota" />
                 <Label Text="{Binding UnitTitle}" Style="{StaticResource Badge}" HorizontalTextAlignment="Center" />
                 <Label Text="{Binding Title}" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
                 <Border HorizontalOptions="Center" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,5"

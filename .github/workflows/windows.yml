@@ -1,0 +1,42 @@
+# Compila y prueba la versión de escritorio para Windows en una máquina Windows de GitHub
+# (WinUI solo se puede compilar en Windows). El resultado es un .zip descargable desde la
+# pestaña Actions: se descomprime y se abre CSharpMastery.App.exe, sin instalar .NET.
+name: Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Instalar la carga de trabajo de MAUI para Windows
+        run: dotnet workload install maui-windows
+
+      - name: Pruebas (incluye el motor de ejecución real en Windows)
+        run: dotnet test tests/CSharpMastery.Tests -c Release
+
+      - name: Publicar la app de escritorio
+        run: >
+          dotnet publish src/CSharpMastery.App -f net10.0-windows10.0.19041.0 -c Release
+          -p:RuntimeIdentifier=win-x64 -p:SelfContained=true -o publish/CSharpMastery-windows-x64
+
+      - name: Comprobar que el ejecutor de código quedó junto a la app
+        shell: pwsh
+        run: |
+          if (-not (Test-Path publish/CSharpMastery-windows-x64/CSharpMastery.App.exe)) { throw "Falta CSharpMastery.App.exe" }
+          if (-not (Test-Path publish/CSharpMastery-windows-x64/runner)) { throw "Falta la carpeta runner" }
+          Get-ChildItem publish/CSharpMastery-windows-x64/runner | Select-Object -First 5
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CSharpMastery-windows-x64
+          path: publish/CSharpMastery-windows-x64

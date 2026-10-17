@@ -74,8 +74,15 @@ public sealed partial class ConceptCardViewModel : MicroStepViewModel
     {
         Blocks = step.Blocks.Select(ContentBlockDisplay.From).ToList();
         CounterText = $"Idea {step.Number} de {step.Total}";
+        IsLongRead = Blocks.Where(b => !b.IsCode).Sum(b => b.Text.Length) >= LongReadChars;
         PrimaryText = "Continuar";
     }
+
+    /// <summary>A partir de cuántos caracteres de texto una tarjeta cuenta como lectura larga.</summary>
+    public const int LongReadChars = 280;
+
+    /// <summary>La tarjeta tiene bastante texto (la mascota aparece dormida, como aviso amistoso).</summary>
+    public bool IsLongRead { get; }
 
     public IReadOnlyList<ContentBlockDisplay> Blocks { get; }
 

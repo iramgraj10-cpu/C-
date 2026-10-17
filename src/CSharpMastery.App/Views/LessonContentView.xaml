@@ -6,6 +6,10 @@
              x:Class="CSharpMastery.App.Views.LessonContentView"
              x:DataType="d:LessonContent">
     <VerticalStackLayout Spacing="12">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Image Source="mascot_sleep.png" WidthRequest="64" HeightRequest="64" SemanticProperties.Description="Mascota dormida: sección con mucho texto" />
+            <Label Grid.Column="1" Text="Apuntes completos: aquí hay mucho texto. Úsalos para consultar; para practicar, entra a la lección." Style="{StaticResource Muted}" VerticalOptions="Center" />
+        </Grid>
         <Border Style="{StaticResource InfoBox}">
             <VerticalStackLayout>
                 <Label Text="Objetivo" Style="{StaticResource Badge}" />

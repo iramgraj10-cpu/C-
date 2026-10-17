@@ -195,7 +195,7 @@ public sealed class ChipStateConverter : IValueConverter
 
 /// <summary>
 /// Aspecto del pie según la franja de retroalimentación. Parámetro: bg (fondo del pie), fg (título),
-/// variant (color del botón principal), icon (glifo) o mascot (imagen).
+/// variant (color del botón principal), o icon (glifo).
 /// </summary>
 public sealed class BannerConverter : IValueConverter
 {
@@ -213,7 +213,6 @@ public sealed class BannerConverter : IValueConverter
             }),
             "variant" => kind switch { BannerKind.Correct => "green", BannerKind.Incorrect => "red", _ => "brand" },
             "icon" => kind switch { BannerKind.Correct => "\ue5ca", BannerKind.Incorrect => "\ue5cd", _ => "\ue0f0" },
-            "mascot" => ImageSource.FromFile(kind == BannerKind.Incorrect ? "mascot_sad.png" : "mascot_happy.png"),
             _ => Color.FromArgb(kind switch
             {
                 BannerKind.Correct => dark ? "#1E3A14" : "#D7FFB8",

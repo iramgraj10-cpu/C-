@@ -38,7 +38,7 @@
 
                 <!-- Saludo de la mascota -->
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                    <Image x:Name="Mascot" Source="mascot_happy.png" WidthRequest="84" HeightRequest="84" VerticalOptions="End" SemanticProperties.Description="Mascota" />
+                    <Image x:Name="Mascot" Source="mascot_main.png" WidthRequest="84" HeightRequest="84" VerticalOptions="End" SemanticProperties.Description="Mascota" />
                     <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,10" VerticalOptions="Center">
                         <VerticalStackLayout Spacing="2">
                             <Label Text="{Binding Greeting}" FontFamily="{StaticResource FontBlack}" FontSize="19" />

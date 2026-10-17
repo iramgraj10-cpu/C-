@@ -6,8 +6,8 @@
              x:DataType="a:IntroStepViewModel">
     <!-- Portada de la lección: mascota, unidad, título y objetivo. -->
     <VerticalStackLayout Spacing="14" Padding="0,24,0,0" HorizontalOptions="Center" MaximumWidthRequest="520">
-        <Image Source="mascot_happy.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center"
-               SemanticProperties.Description="Mascota de C# Mastery sonriendo" />
+        <Image Source="mascot_main.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center"
+               SemanticProperties.Description="Mascota de C# Mastery" />
         <Label Text="{Binding UnitTitle}" Style="{StaticResource Badge}" HorizontalTextAlignment="Center" />
         <Label Text="{Binding Title}" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
         <Border Style="{StaticResource Card}" Padding="16,14">

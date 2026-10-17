@@ -36,7 +36,7 @@
 
         <!-- Globo de la mascota con la explicación de la línea -->
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" IsVisible="{Binding Note, Converter={StaticResource HasValue}}">
-            <Image Source="mascot_happy.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota" />
+            <Image Source="mascot_main.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota" />
             <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,12">
                 <Label Text="{Binding Note}" FontSize="16" />
             </Border>

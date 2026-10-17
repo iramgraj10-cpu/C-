@@ -7,7 +7,7 @@
              x:DataType="a:SummaryStepViewModel">
     <!-- Celebración: mascota, XP, precisión, racha y meta del día; después el detalle por habilidad. -->
     <VerticalStackLayout Spacing="16" Padding="0,12,0,0">
-        <Image x:Name="Mascot" Source="mascot_party.png" WidthRequest="170" HeightRequest="170" HorizontalOptions="Center"
+        <Image x:Name="Mascot" Source="mascot_main.png" WidthRequest="170" HeightRequest="170" HorizontalOptions="Center"
                SemanticProperties.Description="Mascota celebrando" />
         <Label Text="{Binding Title}" Style="{StaticResource Title}" FontSize="28" HorizontalTextAlignment="Center" TextColor="{StaticResource Gold}" />
         <Label Text="{Binding ScoreText}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="16" />

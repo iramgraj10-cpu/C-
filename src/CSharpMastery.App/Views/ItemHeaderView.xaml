@@ -7,7 +7,12 @@
              x:DataType="items:ItemViewModel">
     <VerticalStackLayout Spacing="12">
         <Label Text="{Binding PurposeLabel}" Style="{StaticResource Badge}" />
-        <Label Text="{Binding Prompt}" FontFamily="{StaticResource FontBold}" FontSize="19" SemanticProperties.HeadingLevel="Level2" />
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <Image Source="mascot_think.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" SemanticProperties.Description="Mascota pensando" />
+            <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14,10" VerticalOptions="Center">
+                <Label Text="{Binding Prompt}" FontFamily="{StaticResource FontBold}" FontSize="18" SemanticProperties.HeadingLevel="Level2" />
+            </Border>
+        </Grid>
         <controls:CodeView Code="{Binding Code}" IsVisible="{Binding HasCode}" />
         <Border IsVisible="{Binding AskConfidence}" Style="{StaticResource InfoBox}">
             <VerticalStackLayout Spacing="4">

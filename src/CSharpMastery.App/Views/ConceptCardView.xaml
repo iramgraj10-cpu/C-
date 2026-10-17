@@ -8,10 +8,19 @@
              x:DataType="a:ConceptCardViewModel">
     <!-- Una idea corta: unas líneas de texto y, casi siempre, un fragmento de código. -->
     <VerticalStackLayout Spacing="14">
-        <HorizontalStackLayout Spacing="8">
-            <Label Text="&#xe0f0;" Style="{StaticResource Icon}" TextColor="{StaticResource Gold}" FontSize="22" />
-            <Label Text="{Binding CounterText}" Style="{StaticResource Badge}" VerticalOptions="Center" />
-        </HorizontalStackLayout>
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Grid WidthRequest="60" HeightRequest="60" VerticalOptions="Center">
+                <Image Source="mascot_sleep.png" IsVisible="{Binding IsLongRead}" SemanticProperties.Description="Mascota dormida: tarjeta con bastante texto" />
+                <Image Source="mascot_main.png" IsVisible="{Binding IsLongRead, Converter={StaticResource Not}}" SemanticProperties.Description="Mascota" />
+            </Grid>
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="&#xe0f0;" Style="{StaticResource Icon}" TextColor="{StaticResource Gold}" FontSize="20" />
+                    <Label Text="{Binding CounterText}" Style="{StaticResource Badge}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Label Text="Esta trae más texto: léela con calma, sin dormirte." Style="{StaticResource Muted}" IsVisible="{Binding IsLongRead}" />
+            </VerticalStackLayout>
+        </Grid>
         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Blocks}" Spacing="14">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="d:ContentBlockDisplay">

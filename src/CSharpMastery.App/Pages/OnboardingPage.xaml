@@ -11,7 +11,7 @@
              Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14" MaximumWidthRequest="680">
-            <Image Source="mascot_party.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center" SemanticProperties.Description="Mascota de C# Mastery" />
+            <Image Source="mascot_main.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center" SemanticProperties.Description="Mascota de C# Mastery" />
             <Label Text="¡Hola! Vamos a aprender C# practicando" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
             <Label Text="{Binding MethodText}" />
             <Label Text="Todo se guarda solo en este dispositivo. No necesitas cuenta ni conexión." Style="{StaticResource Muted}" />
