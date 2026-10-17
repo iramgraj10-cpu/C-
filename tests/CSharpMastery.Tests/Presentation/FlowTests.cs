@@ -103,6 +103,13 @@ public sealed class FlowTests : IDisposable
                 Confide(code);
                 code.SourceCode = correct ? code.Exercise.ReferenceSolution : code.Exercise.StarterCode;
                 await code.CheckCommand.ExecuteAsync(null);
+                if (correct && code.TestResults.Any(t => !t.Passed))
+                {
+                    // Detalle para diagnosticar fallas que solo ocurren en otra plataforma (p. ej. tiempos en Windows).
+                    throw new InvalidOperationException($"La solución modelo de {code.Exercise.Id} no aprobó: {code.ResultSummary} | " +
+                        string.Join(" | ", code.TestResults.Where(t => !t.Passed).Select(t => $"{t.Name}: {t.Message} (esperado «{t.Expected}», obtenido «{t.Actual}»)")));
+                }
+
                 await code.ContinueCommand.ExecuteAsync(null);
                 break;
             default:
