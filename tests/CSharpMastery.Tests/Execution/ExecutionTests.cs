@@ -96,6 +96,7 @@ public sealed class ExecutionTests
     {
         var code = "public static class S { public static int F(int n) => F(n + 1) + 1; }";
         var result = await Run(code, mode: CodeMode.Function, tests: [new ExecutionTest("rec", null, "S.F(1)")]);
+        Assert.True(result.Tests.Count == 1, $"Estado {result.Status}: {result.Message} ({result.DurationMs} ms)");
         var failure = result.Tests.Single().Failure;
         Assert.NotNull(failure);
         Assert.Equal("StackOverflowException", failure!.ExceptionType);

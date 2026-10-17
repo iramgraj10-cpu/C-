@@ -288,7 +288,12 @@ internal sealed class RunnerProcess : IDisposable
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             Kill();
-            return Build(ExecutionStatus.TimedOut, "Se superó el tiempo máximo de ejecución.");
+            // En Windows, un desbordamiento de pila puede tardar en cerrar el proceso (informe de errores del
+            // sistema) y agotar el tiempo: si stderr ya lo reporta, se trata como caída y no como bucle infinito.
+            if (!IsStackOverflow(Stderr()))
+            {
+                return Build(ExecutionStatus.TimedOut, "Se superó el tiempo máximo de ejecución.");
+            }
         }
         catch (IOException)
         {
@@ -306,9 +311,14 @@ internal sealed class RunnerProcess : IDisposable
                 Kill();
             }
 
-            var stderr = Stderr();
-            var stackOverflow = stderr.Contains("Stack overflow", StringComparison.OrdinalIgnoreCase);
+            var stackOverflow = IsStackOverflow(Stderr()) || ExitedWithStackOverflow();
             var expected = request.Tests.Count > 0 ? request.Tests.Select(t => t.Name).ToList() : ["Ejecución"];
+            // Si el mensaje de compilación no llegó pero el proceso cayó por la pila, el código sí compiló y se ejecutó.
+            if (compileStatus is null && stackOverflow)
+            {
+                compileStatus = ExecutionStatus.Completed;
+            }
+
             if (compileStatus == ExecutionStatus.Completed && tests.Count < expected.Count)
             {
                 tests.Add(new TestRunResult
@@ -340,6 +350,21 @@ internal sealed class RunnerProcess : IDisposable
             Message = msg,
             DurationMs = stopwatch.ElapsedMilliseconds,
         };
+    }
+
+    private static bool IsStackOverflow(string stderr) => stderr.Contains("Stack overflow", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>0xC00000FD (STATUS_STACK_OVERFLOW) es el código de salida de Windows para un desbordamiento de pila.</summary>
+    private bool ExitedWithStackOverflow()
+    {
+        try
+        {
+            return _process.HasExited && unchecked((uint)_process.ExitCode) == 0xC00000FD;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
     }
 
     private string Stderr()
