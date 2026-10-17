@@ -37,6 +37,10 @@
     <!-- Windows: aplicación sin empaquetar (ejecutable + carpeta). Ver docs/PACKAGING.md para MSIX. -->
     <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
     <WindowsAppSDKSelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WindowsAppSDKSelfContained>
+    <!-- El RID se fija aquí y no con -r en la línea de comandos: un RID global también se aplicaría al restaurar
+         net10.0-android y pediría un runtime de Mono para win-x64 que no existe (NU1102). -->
+    <RuntimeIdentifier Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">win-x64</RuntimeIdentifier>
+    <SelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
