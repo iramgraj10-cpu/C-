@@ -113,4 +113,15 @@ public static class Labels
         4 => "Totalmente seguro",
         _ => "",
     };
+
+    public static string WeekdayInitial(DayOfWeek day) => day switch
+    {
+        DayOfWeek.Monday => "L",
+        DayOfWeek.Tuesday => "M",
+        DayOfWeek.Wednesday => "X",
+        DayOfWeek.Thursday => "J",
+        DayOfWeek.Friday => "V",
+        DayOfWeek.Saturday => "S",
+        _ => "D",
+    };
 }

@@ -6,6 +6,7 @@ using CSharpMastery.Domain.Items;
 using CSharpMastery.Domain.Progress;
 using CSharpMastery.Learning.Services;
 using CSharpMastery.Presentation.Formatting;
+using CSharpMastery.Presentation.ViewModels.Activity;
 using CSharpMastery.Presentation.ViewModels.Display;
 
 namespace CSharpMastery.Presentation.ViewModels.Items;
@@ -21,14 +22,11 @@ public sealed record ItemSettings(
     public bool IsAssessment => Context == AttemptContext.Assessment;
 }
 
-/// <summary>Resultado de un ítem al pulsar "Continuar". Correct es null si no se intentó.</summary>
-public sealed record ItemResult(bool? Correct, Guid? AttemptId);
-
 /// <summary>
 /// Base común de ítems: pistas progresivas, confianza opcional, retroalimentación inmediata y registro de un único
 /// intento por presentación (los reintentos sirven para aprender, pero no inflan las estadísticas).
 /// </summary>
-public abstract partial class ItemViewModel : ViewModelBase
+public abstract partial class ItemViewModel : StepViewModel
 {
     private readonly Func<AttemptRecord, Task<AttemptOutcome?>> _record;
     private readonly Stopwatch _watch = Stopwatch.StartNew();
@@ -64,9 +62,6 @@ public abstract partial class ItemViewModel : ViewModelBase
     public ObservableCollection<string> RevealedHints { get; } = [];
 
     public ObservableCollection<string> Messages { get; } = [];
-
-    /// <summary>Lo que ocurre al pulsar "Continuar" (lo asigna quien presenta el ítem).</summary>
-    public Func<ItemResult, Task>? OnCompleted { get; set; }
 
     [ObservableProperty]
     public partial OptionDisplay<int>? SelectedConfidence { get; set; }
@@ -127,7 +122,11 @@ public abstract partial class ItemViewModel : ViewModelBase
     {
     }
 
-    partial void OnTriesChanged(int value) => OnHintsChanged();
+    partial void OnTriesChanged(int value)
+    {
+        BannerDismissed = false;
+        OnHintsChanged();
+    }
 
     partial void OnSelectedConfidenceChanged(OptionDisplay<int>? value) => OnPropertyChanged(nameof(ConfidenceMissing));
 
@@ -137,11 +136,89 @@ public abstract partial class ItemViewModel : ViewModelBase
     private async Task ContinueAsync()
     {
         await BeforeContinueAsync();
-        if (OnCompleted is not null)
+        if (RecordedAttempt is { Correct: true, AutoGraded: true })
         {
-            await OnCompleted(new ItemResult(RecordedAttempt?.Correct, RecordedAttempt?.Id));
+            XpEarned = Item.IsCode ? XpRewards.CodeExercise : XpRewards.Item;
+        }
+
+        await CompleteAsync(RecordedAttempt?.Correct, RecordedAttempt?.Id);
+    }
+
+    // ---------- Pie de la pantalla: Comprobar / Continuar y franja de retroalimentación ----------
+
+    /// <summary>El estudiante cerró la franja de error para reintentar.</summary>
+    protected bool BannerDismissed { get; set; }
+
+    /// <summary>Hay un resultado a la vista y se puede seguir.</summary>
+    protected bool ShowingResult => Feedback is not null && !BannerDismissed && CanContinue;
+
+    protected virtual bool CanSubmitNow => false;
+
+    protected virtual Task SubmitNowAsync() => Task.CompletedTask;
+
+    protected override Task OnPrimaryAsync() => ShowingResult ? ContinueCommand.ExecuteAsync(null) : SubmitNowAsync();
+
+    protected override Task OnSecondaryAsync()
+    {
+        BannerDismissed = true;
+        UpdateFooter();
+        return Task.CompletedTask;
+    }
+
+    private static readonly HashSet<string> FooterProperties =
+    [
+        nameof(Feedback), nameof(FeedbackPositive), nameof(CanContinue), nameof(IsSolved), nameof(HasSubmitted),
+        nameof(ShowExplanation), nameof(Tries), nameof(IsBusy),
+        "SolutionVisible", "SelfCheckVisible", "IsRunning", "ResultSummary",
+    ];
+
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName is { } name && (FooterProperties.Contains(name) || name.StartsWith("Selected", StringComparison.Ordinal) || name == "Answer"))
+        {
+            UpdateFooter();
         }
     }
+
+    /// <summary>Recalcula el pie según el estado del ítem.</summary>
+    protected virtual void UpdateFooter()
+    {
+        if (Feedback is null || BannerDismissed)
+        {
+            HideBanner();
+        }
+        else
+        {
+            var kind = FeedbackPositive switch { true => BannerKind.Correct, false => BannerKind.Incorrect, _ => BannerKind.Info };
+            var title = kind switch
+            {
+                BannerKind.Correct => PraiseFor(Item.Id + Tries),
+                BannerKind.Incorrect => "Respuesta incorrecta",
+                _ => Settings.ShowFeedback ? null : "Respuesta registrada",
+            };
+            var text = Feedback;
+            if (ShowExplanation && !string.IsNullOrWhiteSpace(Explanation))
+            {
+                text += "\n\n" + Explanation;
+            }
+
+            if (Messages.Count > 0)
+            {
+                text += "\n\n" + string.Join("\n", Messages.Select(m => "• " + m));
+            }
+
+            var link = kind == BannerKind.Incorrect && !IsSolved && Settings.ShowFeedback && OffersAnswer ? "Ver la respuesta" : null;
+            ShowBanner(kind, title, text?.Trim(), link: link);
+        }
+
+        PrimaryText = ShowingResult ? "Continuar" : Settings.IsAssessment ? "Responder" : "Comprobar";
+        PrimaryEnabled = ShowingResult ? CanContinue : CanSubmitNow && !IsBusy;
+        SecondaryText = ShowingResult && FeedbackPositive == false && !IsSolved && Settings.ShowFeedback ? "Reintentar" : null;
+    }
+
+    /// <summary>Si la franja ofrece «Ver la respuesta» tras fallar.</summary>
+    protected virtual bool OffersAnswer => false;
 
     protected virtual Task BeforeContinueAsync() => Task.CompletedTask;
 

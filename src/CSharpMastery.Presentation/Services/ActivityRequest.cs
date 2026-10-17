@@ -20,4 +20,5 @@ public sealed record ActivityRequest(
     IReadOnlyList<string> ItemIds,
     Guid? SessionId = null,
     Guid? AssessmentId = null,
-    string? Title = null);
+    string? Title = null,
+    string? LessonSkillId = null);

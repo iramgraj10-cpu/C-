@@ -5,7 +5,9 @@ using CSharpMastery.Domain.Curriculum;
 using CSharpMastery.Domain.Items;
 using CSharpMastery.Domain.Progress;
 using CSharpMastery.Domain.Sessions;
+using CSharpMastery.Content;
 using CSharpMastery.Execution;
+using CSharpMastery.Learning.Interactive;
 using CSharpMastery.Learning.Analytics;
 using CSharpMastery.Learning.Services;
 using CSharpMastery.Learning.Sessions;
@@ -15,9 +17,6 @@ using CSharpMastery.Presentation.ViewModels.Display;
 using CSharpMastery.Presentation.ViewModels.Items;
 
 namespace CSharpMastery.Presentation.ViewModels.Activity;
-
-/// <summary>Un paso de la actividad: lectura, ítem o resumen.</summary>
-public sealed record ActivityStep(SessionActivity Activity);
 
 /// <summary>
 /// Conduce cualquier secuencia de actividades: sesión planificada, repasos, evaluación, práctica de lección o práctica
@@ -35,11 +34,29 @@ public sealed partial class ActivityViewModel(
     private ActivityRequest _request = new(ActivityMode.Practice, []);
     private StudySession? _session;
     private Assessment? _assessment;
+    private readonly List<MicroStepViewModel> _micro = [];
+    private readonly LessonFlowBuilder _flow = new(CurriculumContent.InteractiveExclusions);
     private int _position;
+    private int _microIndex;
     private bool _plannedNoticeShown;
+    private int _goalBefore;
+    private int _todayBefore;
+    private bool _bonusAwarded;
 
     [ObservableProperty]
-    public partial object? CurrentStep { get; set; }
+    public partial StepViewModel? CurrentStep { get; set; }
+
+    /// <summary>Avance de 0 a 1 para la barra superior.</summary>
+    [ObservableProperty]
+    public partial double Progress { get; set; }
+
+    /// <summary>XP ganados en esta actividad.</summary>
+    [ObservableProperty]
+    public partial int XpEarned { get; set; }
+
+    /// <summary>Aciertos seguidos (para animar una racha dentro de la lección).</summary>
+    [ObservableProperty]
+    public partial int Combo { get; set; }
 
     [ObservableProperty]
     public partial string Title { get; set; } = "";
@@ -82,7 +99,13 @@ public sealed partial class ActivityViewModel(
         _results.Clear();
         _messages.Clear();
         _position = 0;
+        _micro.Clear();
+        _microIndex = 0;
         _plannedNoticeShown = false;
+        XpEarned = 0;
+        _bonusAwarded = false;
+        Combo = 0;
+        Progress = 0;
         IsFinished = false;
         OnPropertyChanged(nameof(IsSession));
         OnPropertyChanged(nameof(IsAssessment));
@@ -90,8 +113,14 @@ public sealed partial class ActivityViewModel(
 
         await RunSafeAsync(async () =>
         {
+            var before = await learning.Gamification.GetStateAsync();
+            _goalBefore = before.DailyGoal;
+            _todayBefore = before.TodayXp;
             switch (request.Mode)
             {
+                case ActivityMode.Lesson when request.LessonSkillId is { } lessonSkill:
+                    LoadLessonFlow(learning.Catalog.GetSkill(lessonSkill));
+                    break;
                 case ActivityMode.Session:
                     await LoadSessionAsync(request);
                     break;
@@ -113,6 +142,38 @@ public sealed partial class ActivityViewModel(
             await ShowCurrentAsync();
         }, "No se pudo abrir la actividad.");
     }
+
+    /// <summary>
+    /// Lección interactiva: explicación en tarjetas con huecos, predicción, ejemplo recorrido y ordenado, error
+    /// habitual, búsqueda de errores, recuerdo y, al final, el primer ejercicio de código.
+    /// </summary>
+    private void LoadLessonFlow(Skill skill)
+    {
+        var lesson = skill.Lesson ?? throw new InvalidOperationException("Esta lección todavía está en preparación.");
+        Title = skill.Title;
+        var lessonIds = lesson.AllItemIds().ToHashSet();
+        var extra = learning.Catalog.ItemsForSkill(skill.Id)
+            .Where(i => !lessonIds.Contains(i.Id) && i.Purpose is ItemPurpose.BugFinding)
+            .Select(i => i.Id).Take(1);
+        var index = 0;
+        void Add(ActivityKind kind, string refId, bool confidence = false) =>
+            _steps.Add(new SessionActivity(index++, SessionBlockKind.NewConcept, kind, refId, 2, confidence, ""));
+
+        Add(ActivityKind.ReadLesson, skill.Id);
+        Add(ActivityKind.Item, lesson.PredictionItemId, confidence: true);
+        Add(ActivityKind.StudyWorkedExample, skill.Id);
+        foreach (var id in extra)
+        {
+            Add(ActivityKind.Item, id);
+        }
+
+        Add(ActivityKind.Item, lesson.RecallItemIds[0]);
+        Add(ActivityKind.Item, lesson.GuidedExerciseId);
+        Add(ActivityKind.Summary, "");
+    }
+
+    private string UnitTitle(Skill skill) =>
+        learning.Catalog.Modules.SelectMany(m => m.Units).FirstOrDefault(u => u.Id == skill.UnitId)?.Title ?? "";
 
     private static bool AskConfidenceFor(ActivityMode mode, int index) => mode switch
     {
@@ -210,8 +271,14 @@ public sealed partial class ActivityViewModel(
                     await learning.MarkLessonSeenAsync(skill.Id);
                 }
 
-                CurrentStep = new ReadingStepViewModel(new LessonContent(skill, skill.Lesson), activity.Kind == ActivityKind.StudyWorkedExample,
-                    () => AdvanceAsync(null, null));
+                var explanation = _flow.Explanation(skill, skill.Lesson);
+                var micro = activity.Kind == ActivityKind.ReadLesson
+                    ? explanation
+                    : _flow.Practice(skill, skill.Lesson, includeCloze: !LessonFlowBuilder.HasCloze(explanation));
+                _micro.Clear();
+                _micro.AddRange(micro.Select(m => MicroStepFactory.Create(m, UnitTitle(skill))));
+                _microIndex = 0;
+                ShowMicro();
                 break;
 
             case ActivityKind.Item:
@@ -228,6 +295,68 @@ public sealed partial class ActivityViewModel(
             default:
                 CurrentStep = await BuildSummaryAsync();
                 break;
+        }
+
+        UpdateProgress();
+    }
+
+    partial void OnCurrentStepChanged(StepViewModel? value)
+    {
+        if (value is SummaryStepViewModel)
+        {
+            Progress = 1;
+        }
+    }
+
+    private void ShowMicro()
+    {
+        var step = _micro[_microIndex];
+        step.OnCompleted = async result =>
+        {
+            await OnStepResultAsync(result);
+            _microIndex++;
+            if (_microIndex < _micro.Count)
+            {
+                ShowMicro();
+                UpdateProgress();
+            }
+            else
+            {
+                _micro.Clear();
+                await AdvanceAsync(null, null);
+            }
+        };
+        CurrentStep = step;
+    }
+
+    private void UpdateProgress()
+    {
+        if (CurrentStep is SummaryStepViewModel)
+        {
+            Progress = 1;
+            return;
+        }
+
+        var within = _micro.Count > 0 ? _microIndex / (double)_micro.Count : 0;
+        Progress = Math.Clamp((_position + within) / Math.Max(1, _steps.Count(s => s.Kind != ActivityKind.Summary)), 0, 1);
+    }
+
+    /// <summary>Suma XP y lleva la cuenta de aciertos seguidos.</summary>
+    private async Task OnStepResultAsync(StepResult result)
+    {
+        if (result.Correct == true)
+        {
+            Combo++;
+        }
+        else if (result.Correct == false)
+        {
+            Combo = 0;
+        }
+
+        if (result.Xp > 0)
+        {
+            XpEarned += result.Xp;
+            await learning.Gamification.AwardAsync(result.Xp);
         }
     }
 
@@ -249,6 +378,7 @@ public sealed partial class ActivityViewModel(
         vm.OnCompleted = async result =>
         {
             _results.Add((item, result.Correct));
+            await OnStepResultAsync(result);
             await AdvanceAsync(result.Correct, result.AttemptId);
         };
         return vm;
@@ -299,11 +429,26 @@ public sealed partial class ActivityViewModel(
         var snapshot = await learning.GetSnapshotAsync();
         var now = learning.Clock.Now;
         var attempted = _results.Where(r => r.Correct is not null).ToList();
+        var correct = attempted.Count(r => r.Correct == true);
+        if (_request.LessonSkillId is not null && !_bonusAwarded)
+        {
+            _bonusAwarded = true;
+            var bonus = XpRewards.LessonCompleted + (attempted.Count > 0 && correct == attempted.Count ? XpRewards.PerfectLessonBonus : 0);
+            XpEarned += bonus;
+            await learning.Gamification.AwardAsync(bonus);
+        }
+
+        var state = await learning.Gamification.GetStateAsync();
         var summary = new SummaryStepViewModel(FinishAsync)
         {
-            Title = IsSession ? "Cierre de la sesión" : "Resumen",
-            Correct = attempted.Count(r => r.Correct == true),
+            Title = _request.LessonSkillId is not null ? "¡Lección completada!" : IsSession ? "¡Sesión completada!" : "¡Buen trabajo!",
+            Correct = correct,
             Attempted = attempted.Count,
+            Xp = XpEarned,
+            Streak = state.Streak,
+            TodayXp = state.TodayXp,
+            DailyGoal = state.DailyGoal,
+            GoalReachedNow = _todayBefore < _goalBefore && state.TodayXp >= state.DailyGoal,
             TimeText = _session is null ? null : $"Tiempo activo: {Labels.Duration(SessionTracker.ActiveTime(_session, now))}",
         };
 

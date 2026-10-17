@@ -45,6 +45,9 @@ public sealed class LearningService(CurriculumCatalog catalog, IProgressStore st
 
     public IClock Clock => clock;
 
+    /// <summary>XP, racha y meta diaria.</summary>
+    public GamificationService Gamification { get; } = new(store, clock);
+
     public async Task<MasteryCriteria> GetCriteriaAsync()
     {
         var json = await store.GetSettingAsync(CriteriaKey);

@@ -9,16 +9,57 @@ using CSharpMastery.Presentation.Services;
 
 namespace CSharpMastery.Presentation.ViewModels.Pages;
 
+/// <summary>Cómo se ve una lección en el camino.</summary>
+public enum NodeState
+{
+    /// <summary>Sin lección todavía.</summary>
+    Soon,
+    /// <summary>Faltan prerrequisitos (se puede abrir igual).</summary>
+    Locked,
+    /// <summary>Disponible para empezar.</summary>
+    Available,
+    /// <summary>Vista o practicada, sin dominio todavía.</summary>
+    InProgress,
+    /// <summary>Dominada (al menos provisionalmente).</summary>
+    Completed,
+    /// <summary>Retenida tras un repaso posterior.</summary>
+    Legendary,
+}
+
 public sealed record SkillLine(string Id, string Title, string Summary, string TierLabel, string MasteryLabel, MasteryLevel Mastery, bool HasLesson, bool PrerequisitesMet)
 {
     public string StatusText => HasLesson ? MasteryLabel : "Contenido en preparación";
 
     public bool NeedsPrerequisites => HasLesson && !PrerequisitesMet;
+
+    public NodeState State => !HasLesson ? NodeState.Soon
+        : Mastery >= MasteryLevel.Retained ? NodeState.Legendary
+        : Mastery >= MasteryLevel.ProvisionallyMastered ? NodeState.Completed
+        : Mastery >= MasteryLevel.Seen ? NodeState.InProgress
+        : PrerequisitesMet ? NodeState.Available
+        : NodeState.Locked;
+
+    /// <summary>La siguiente lección recomendada (lleva la etiqueta «Empezar»).</summary>
+    public bool IsCurrent { get; init; }
+
+    /// <summary>Desplazamiento horizontal para dibujar el camino en zigzag.</summary>
+    public double Offset { get; init; }
+
+    /// <summary>Nivel del módulo (decide el color de la unidad).</summary>
+    public int Level { get; init; }
 }
 
 public sealed record UnitGroup(string Id, string Title, string Description, IReadOnlyList<SkillLine> Skills)
 {
     public bool CanAssess => Skills.Any(s => s.HasLesson);
+
+    public int Level { get; init; }
+
+    public int Done => Skills.Count(s => s.State is NodeState.Completed or NodeState.Legendary);
+
+    public int WithLesson => Skills.Count(s => s.HasLesson);
+
+    public string ProgressText => WithLesson == 0 ? "Próximamente" : $"{Done} de {WithLesson} dominadas";
 }
 
 public sealed partial class ModuleGroup(CurriculumModule module, IReadOnlyList<UnitGroup> units) : ObservableObject
@@ -28,6 +69,8 @@ public sealed partial class ModuleGroup(CurriculumModule module, IReadOnlyList<U
     public string Description => module.Description;
 
     public IReadOnlyList<UnitGroup> Units { get; } = units;
+
+    public int Level => module.Level;
 
     public string Summary
     {
@@ -43,7 +86,7 @@ public sealed partial class ModuleGroup(CurriculumModule module, IReadOnlyList<U
 
             return withLesson == 0
                 ? $"{skills.Count} habilidades (contenido en preparación)"
-                : $"{skills.Count} habilidades · {withLesson} con lección · {provisional} dominadas al menos provisionalmente";
+                : $"{provisional} de {withLesson} lecciones dominadas";
         }
     }
 
@@ -54,6 +97,8 @@ public sealed partial class ModuleGroup(CurriculumModule module, IReadOnlyList<U
 /// <summary>Mapa del currículo por niveles, unidades y habilidades, con el estado de dominio de cada una.</summary>
 public sealed partial class CurriculumViewModel(LearningService learning, INavigationService navigation, IDialogService dialogs) : ViewModelBase
 {
+    private static readonly double[] Zigzag = [0, 50, 80, 50, 0, -50, -80, -50];
+
     public ObservableCollection<ModuleGroup> Modules { get; } = [];
 
     public async Task LoadAsync()
@@ -61,19 +106,26 @@ public sealed partial class CurriculumViewModel(LearningService learning, INavig
         await RunSafeAsync(async () =>
         {
             var snapshot = await learning.GetSnapshotAsync();
+            var current = new Learning.Sessions.SessionPlanner(learning.Catalog).ChooseFocus(snapshot);
             var expanded = Modules.Where(m => m.IsExpanded).Select(m => m.Title).ToHashSet();
             Modules.Clear();
             var firstOpen = true;
             foreach (var module in learning.Catalog.Modules)
             {
-                var units = module.Units.Select(u => new UnitGroup(u.Id, u.Title, u.Description, u.Skills.Select(s =>
+                var units = module.Units.Select(u => new UnitGroup(u.Id, u.Title, u.Description, u.Skills.Select((s, i) =>
                 {
                     var level = snapshot.Level(s.Id);
-                    var prereqs = s.Prerequisites.All(p => snapshot.Level(p) >= MasteryLevel.Practiced);
-                    return new SkillLine(s.Id, s.Title, s.Summary, Labels.Tier(s.Tier), Labels.Mastery(level), level, s.Lesson is not null, prereqs);
-                }).ToList())).ToList();
+                    var prereqs = s.Prerequisites.All(p => learning.Catalog.FindSkill(p) is not { Lesson: not null } || snapshot.Level(p) >= MasteryLevel.Seen);
+                    return new SkillLine(s.Id, s.Title, s.Summary, Labels.Tier(s.Tier), Labels.Mastery(level), level, s.Lesson is not null, prereqs)
+                    {
+                        IsCurrent = s.Id == current?.Id,
+                        Offset = Zigzag[i % Zigzag.Length],
+                        Level = module.Level,
+                    };
+                }).ToList()) { Level = module.Level }).ToList();
                 var group = new ModuleGroup(module, units);
-                group.IsExpanded = expanded.Contains(group.Title) || (expanded.Count == 0 && firstOpen && units.Count > 0);
+                var hasCurrent = units.Any(u => u.Skills.Any(k => k.IsCurrent));
+                group.IsExpanded = expanded.Contains(group.Title) || (expanded.Count == 0 && (hasCurrent || (firstOpen && current is null && units.Count > 0)));
                 firstOpen &= !group.IsExpanded;
                 Modules.Add(group);
             }

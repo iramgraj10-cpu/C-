@@ -5,6 +5,7 @@ using CSharpMastery.Domain.Items;
 using CSharpMastery.Domain.Progress;
 using CSharpMastery.Domain.Sessions;
 using CSharpMastery.Execution;
+using CSharpMastery.Learning.Interactive;
 using CSharpMastery.Learning.Services;
 using CSharpMastery.Presentation.Services;
 using CSharpMastery.Presentation.ViewModels.Activity;
@@ -83,8 +84,8 @@ public sealed class FlowTests : IDisposable
         _clock.Advance(TimeSpan.FromMinutes(2));
         switch (activity.CurrentStep)
         {
-            case ReadingStepViewModel reading:
-                await reading.ContinueCommand.ExecuteAsync(null);
+            case MicroStepViewModel micro:
+                await SolveMicroAsync(micro, correct);
                 break;
             case ChoiceItemViewModel choice:
                 Confide(choice);
@@ -108,6 +109,56 @@ public sealed class FlowTests : IDisposable
                 throw new InvalidOperationException($"Paso inesperado: {activity.CurrentStep}");
         }
     }
+
+    /// <summary>Resuelve un paso interactivo generado (bien o mal) y continúa.</summary>
+    private static async Task SolveMicroAsync(MicroStepViewModel micro, bool correct = true)
+    {
+        switch (micro)
+        {
+            case ClozeViewModel cloze:
+                var answer = ((ClozeStep)cloze.Step).Answer;
+                cloze.ChooseCommand.Execute(cloze.Options.First(o => (o.Text == answer) == correct));
+                break;
+            case ParsonsViewModel parsons:
+                var step = (ParsonsStep)parsons.Step;
+                var order = correct ? step.MovableIndexes : step.BankOrder;
+                foreach (var index in order)
+                {
+                    parsons.PlaceCommand.Execute(parsons.Bank.First(b => b.LineIndex == index && !b.IsUsed));
+                }
+
+                break;
+            case SpotBugViewModel bug:
+                var bugLines = ((SpotBugStep)bug.Step).BugLines;
+                bug.TapCommand.Execute(bug.Lines.First(l => bugLines.Contains(l.Number) == correct && !string.IsNullOrWhiteSpace(l.Text)));
+                break;
+            case CompareCodeViewModel compare:
+                compare.ChooseCommand.Execute(compare.Options.First(o => o.IsCorrect == correct));
+                break;
+        }
+
+        // Comprobar (si aplica) y continuar hasta que el paso termine.
+        var completed = false;
+        micro.OnCompleted = WrapCompletion(micro.OnCompleted, () => completed = true);
+        for (var guard = 0; !completed; guard++)
+        {
+            if (guard > 50 || !micro.PrimaryEnabled)
+            {
+                throw new InvalidOperationException($"El paso {micro.Step.Key} no avanza.");
+            }
+
+            await micro.PrimaryCommand.ExecuteAsync(null);
+        }
+    }
+
+    private static Func<StepResult, Task> WrapCompletion(Func<StepResult, Task>? inner, Action done) => async result =>
+    {
+        done();
+        if (inner is not null)
+        {
+            await inner(result);
+        }
+    };
 
     private static void Confide(ItemViewModel item)
     {
@@ -210,8 +261,12 @@ public sealed class FlowTests : IDisposable
         var session = await service.StartSessionAsync(25, seed: 3);
         var activity = NewActivity(service);
         await activity.LoadAsync(new ActivityRequest(ActivityMode.Session, [], session.Id));
-        await SolveCurrentAsync(activity);
-        await SolveCurrentAsync(activity);
+        for (var guard = 0; activity.Session!.CurrentIndex < 2 && guard < 60; guard++)
+        {
+            // Un paso de la sesión puede tener varios pasos interactivos (la explicación en tarjetas).
+            await SolveCurrentAsync(activity);
+        }
+
         await activity.PauseCommand.ExecuteAsync(null);
 
         var paused = await service.GetUnfinishedSessionAsync();
@@ -224,7 +279,7 @@ public sealed class FlowTests : IDisposable
         await resumed.LoadAsync(new ActivityRequest(ActivityMode.Session, [], session.Id));
         Assert.Equal(SessionStatus.Active, resumed.Session!.Status);
         Assert.Equal(2, resumed.Session.CurrentIndex);
-        Assert.True(resumed.Session.ActiveTime < TimeSpan.FromMinutes(10));
+        Assert.True(resumed.Session.ActiveTime < TimeSpan.FromHours(2));
 
         var home = new HomeViewModel(service, _nav, _dialogs);
         await service.GetOrCreateProfileAsync();
@@ -423,22 +478,116 @@ public sealed class FlowTests : IDisposable
     }
 
     [Fact]
-    public async Task Leccion_marca_vista_y_lanza_practica_en_orden()
+    public async Task Leccion_abre_tarjeta_y_lanza_leccion_interactiva_y_practica()
     {
         var service = NewService();
         var lesson = new LessonViewModel(service, _nav);
         await lesson.LoadAsync("n0.variables");
         Assert.True(lesson.HasLesson);
+        Assert.Equal(MasteryLevel.NotStarted, (await service.Store.GetSkillAsync("n0.variables")).Level);
+
+        await lesson.ToggleNotesCommand.ExecuteAsync(null);
         Assert.Equal(MasteryLevel.Seen, (await service.Store.GetSkillAsync("n0.variables")).Level);
 
-        await lesson.PracticeCommand.ExecuteAsync(null);
+        await lesson.StartLessonCommand.ExecuteAsync(null);
         var request = _nav.LastParameter<ActivityRequest>(Routes.RequestParameter);
         Assert.Equal(ActivityMode.Lesson, request.Mode);
+        Assert.Equal("n0.variables", request.LessonSkillId);
+
+        await lesson.PracticeCommand.ExecuteAsync(null);
+        request = _nav.LastParameter<ActivityRequest>(Routes.RequestParameter);
         Assert.Equal("n0.variables.pred1", request.ItemIds[0]);
 
         var outline = new LessonViewModel(service, _nav);
         await outline.LoadAsync(CurriculumContent.Catalog.OrderedSkills.Last().Id);
         Assert.Null(outline.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task Leccion_interactiva_completa_da_xp_y_racha()
+    {
+        var service = NewService();
+        var activity = NewActivity(service);
+        await activity.LoadAsync(new ActivityRequest(ActivityMode.Lesson, [], LessonSkillId: "n1.for"));
+        Assert.Null(activity.ErrorMessage);
+        Assert.IsType<IntroStepViewModel>(activity.CurrentStep);
+        Assert.Equal(0, activity.Progress);
+
+        var kinds = new List<string>();
+        var guard = 0;
+        while (activity.CurrentStep is not SummaryStepViewModel && guard++ < 60)
+        {
+            kinds.Add(activity.CurrentStep!.GetType().Name);
+            var progress = activity.Progress;
+            await SolveCurrentAsync(activity);
+            Assert.True(activity.Progress >= progress);
+        }
+
+        Assert.Contains(nameof(ConceptCardViewModel), kinds);
+        Assert.Contains(nameof(ClozeViewModel), kinds);
+        Assert.Contains(nameof(WalkthroughViewModel), kinds);
+        Assert.Contains(kinds, k => k is nameof(SpotBugViewModel) or nameof(CompareCodeViewModel));
+        Assert.Contains(nameof(CodeExerciseViewModel), kinds);
+
+        var summary = Assert.IsType<SummaryStepViewModel>(activity.CurrentStep);
+        Assert.Equal(1, activity.Progress);
+        Assert.Equal("¡Lección completada!", summary.Title);
+        Assert.True(summary.Xp > XpRewards.LessonCompleted);
+        Assert.Equal(summary.Attempted, summary.Correct);
+        Assert.Equal(1, summary.Streak);
+        var state = await service.Gamification.GetStateAsync();
+        Assert.Equal(summary.Xp, state.TotalXp);
+        Assert.True((await service.Store.GetSkillAsync("n1.for")).Level >= MasteryLevel.Seen);
+    }
+
+    [Fact]
+    public async Task Un_hueco_fallado_muestra_la_respuesta_y_no_da_xp()
+    {
+        var builder = new LessonFlowBuilder(CurriculumContent.InteractiveExclusions);
+        var skill = CurriculumContent.Catalog.GetSkill("n1.for");
+        var cloze = builder.Explanation(skill, skill.Lesson!).OfType<ClozeStep>().First();
+        var vm = new ClozeViewModel(cloze);
+        Assert.Equal("Comprobar", vm.PrimaryText);
+        Assert.False(vm.PrimaryEnabled);
+        vm.ChooseCommand.Execute(vm.Options.First(o => o.Text != cloze.Answer));
+        await vm.PrimaryCommand.ExecuteAsync(null);
+        Assert.Equal(BannerKind.Incorrect, vm.Banner);
+        Assert.Contains(cloze.Answer, vm.BannerText);
+        Assert.Equal("Continuar", vm.PrimaryText);
+        Assert.Equal(ChipState.Correct, vm.Options.Single(o => o.Text == cloze.Answer).State);
+        StepResult? result = null;
+        vm.OnCompleted = r => { result = r; return Task.CompletedTask; };
+        await vm.PrimaryCommand.ExecuteAsync(null);
+        Assert.False(result!.Correct);
+        Assert.Equal(0, result.Xp);
+    }
+
+    [Fact]
+    public async Task El_pie_de_una_pregunta_pasa_de_comprobar_a_reintentar_y_continuar()
+    {
+        var service = NewService();
+        var activity = NewActivity(service);
+        await activity.LoadAsync(new ActivityRequest(ActivityMode.Practice, ["n1.for.recall1"]));
+        var choice = Assert.IsType<ChoiceItemViewModel>(activity.CurrentStep);
+        Assert.Equal("Comprobar", choice.PrimaryText);
+        Assert.False(choice.PrimaryEnabled);
+        Confide(choice);
+        choice.SelectCommand.Execute(choice.Options.First(o => !((ChoiceItem)choice.Item).Options[o.Index].IsCorrect));
+        Assert.True(choice.PrimaryEnabled);
+        await choice.PrimaryCommand.ExecuteAsync(null);
+        Assert.Equal(BannerKind.Incorrect, choice.Banner);
+        Assert.Equal("Reintentar", choice.SecondaryText);
+        Assert.Equal("Ver la respuesta", choice.BannerLinkText);
+        await choice.SecondaryCommand.ExecuteAsync(null);
+        Assert.Equal(BannerKind.None, choice.Banner);
+        choice.SelectCommand.Execute(choice.Options.First(o => ((ChoiceItem)choice.Item).Options[o.Index].IsCorrect));
+        await choice.PrimaryCommand.ExecuteAsync(null);
+        Assert.Equal(BannerKind.Correct, choice.Banner);
+        Assert.Equal("Continuar", choice.PrimaryText);
+        await choice.PrimaryCommand.ExecuteAsync(null);
+        var summary = Assert.IsType<SummaryStepViewModel>(activity.CurrentStep);
+        Assert.Equal(0, summary.Correct); // el primer intento fue incorrecto
+        Assert.Equal(0, summary.Xp);
     }
 
     [Fact]

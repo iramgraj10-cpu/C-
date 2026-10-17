@@ -7,6 +7,7 @@ using CSharpMastery.Domain.Progress;
 using CSharpMastery.Execution;
 using CSharpMastery.Learning.Services;
 using CSharpMastery.Presentation.Highlighting;
+using CSharpMastery.Presentation.ViewModels.Activity;
 
 namespace CSharpMastery.Presentation.ViewModels.Items;
 
@@ -50,6 +51,7 @@ public sealed partial class CodeExerciseViewModel : ItemViewModel
         _execution = execution;
         _store = store;
         SourceCode = exercise.StarterCode;
+        UpdateFooter();
     }
 
     public CodeExercise Exercise => _exercise;
@@ -328,6 +330,90 @@ public sealed partial class CodeExerciseViewModel : ItemViewModel
         CanContinue = true;
         SelfCheckVisible = false;
     }
+
+    // ---------- Pie: Comprobar / Seguir intentando / Continuar ----------
+
+    private enum FooterState
+    {
+        Editing,
+        Failed,
+        Solved,
+        Finished,
+        SelfCheck,
+    }
+
+    private FooterState State =>
+        Settings.IsAssessment ? (HasSubmitted ? FooterState.Finished : FooterState.Editing)
+        : !EngineAvailable ? (RecordedAttempt is not null ? FooterState.Finished : FooterState.SelfCheck)
+        : IsSolved ? FooterState.Solved
+        : SolutionVisible ? FooterState.Finished
+        : HasSubmitted && Feedback is not null && !BannerDismissed ? FooterState.Failed
+        : FooterState.Editing;
+
+    protected override void UpdateFooter()
+    {
+        switch (State)
+        {
+            case FooterState.Solved:
+                ShowBanner(BannerKind.Correct, PraiseFor(Item.Id + Tries), Feedback);
+                PrimaryText = "Continuar";
+                PrimaryEnabled = true;
+                SecondaryText = null;
+                break;
+            case FooterState.Finished:
+                ShowBanner(BannerKind.Info, Settings.IsAssessment ? "Entrega registrada" : SolutionVisible && !IsSolved ? "Estudia la solución" : null,
+                    Settings.IsAssessment ? ResultSummary : Feedback);
+                PrimaryText = "Continuar";
+                PrimaryEnabled = true;
+                SecondaryText = null;
+                break;
+            case FooterState.Failed:
+                ShowBanner(BannerKind.Incorrect, "Aún no", string.Join("\n", new[] { ResultSummary, Feedback }.Where(t => !string.IsNullOrWhiteSpace(t))),
+                    link: CanShowSolution ? "Ver la solución" : null);
+                PrimaryText = "Seguir intentando";
+                PrimaryEnabled = true;
+                SecondaryText = "Saltar";
+                break;
+            case FooterState.SelfCheck:
+                HideBanner();
+                PrimaryText = SelfCheckVisible ? "Continuar sin autoevaluar" : "Ver solución y autoevaluar";
+                PrimaryEnabled = true;
+                SecondaryText = SelfCheckVisible ? null : "Saltar";
+                break;
+            default:
+                HideBanner();
+                PrimaryText = IsRunning ? "Comprobando…" : CheckButtonText;
+                PrimaryEnabled = CanExecuteCode();
+                SecondaryText = Settings.IsAssessment ? "Omitir" : "Saltar";
+                break;
+        }
+    }
+
+    protected override Task OnPrimaryAsync()
+    {
+        switch (State)
+        {
+            case FooterState.Solved:
+            case FooterState.Finished:
+                return ContinueCommand.ExecuteAsync(null);
+            case FooterState.Failed:
+                BannerDismissed = true;
+                UpdateFooter();
+                return Task.CompletedTask;
+            case FooterState.SelfCheck when !SelfCheckVisible:
+                StartSelfCheck();
+                return Task.CompletedTask;
+            case FooterState.SelfCheck:
+                return ContinueCommand.ExecuteAsync(null);
+            default:
+                return CheckCommand.ExecuteAsync(null);
+        }
+    }
+
+    /// <summary>Saltar: continuar sin resolver (el ejercicio volverá en la práctica).</summary>
+    protected override Task OnSecondaryAsync() => ContinueCommand.ExecuteAsync(null);
+
+    protected override Task OnBannerLinkAsync() => ShowSolutionCommand.ExecuteAsync(null);
 
     /// <summary>Al continuar sin resolver, el intento queda registrado con el último resultado.</summary>
     protected override Task BeforeContinueAsync() => FinalizeAsync();

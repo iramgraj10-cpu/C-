@@ -38,6 +38,19 @@ public sealed partial class LessonViewModel(LearningService learning, INavigatio
     [ObservableProperty]
     public partial string? ReviewText { get; set; }
 
+    [ObservableProperty]
+    public partial string UnitTitle { get; set; } = "";
+
+    [ObservableProperty]
+    public partial MasteryLevel Level { get; set; }
+
+    [ObservableProperty]
+    public partial string StartText { get; set; } = "Empezar lección";
+
+    /// <summary>Apuntes completos de la lección (referencia para consultar, no la forma principal de aprender).</summary>
+    [ObservableProperty]
+    public partial bool ShowNotes { get; set; }
+
     public bool HasLesson => Content is not null;
 
     public bool IsOutline => Content is null;
@@ -66,14 +79,14 @@ public sealed partial class LessonViewModel(LearningService learning, INavigatio
             Title = _skill.Title;
             Summary = _skill.Summary;
             Content = _skill.Lesson is { } lesson ? new LessonContent(_skill, lesson) : null;
-            if (_skill.Lesson is not null)
-            {
-                await learning.MarkLessonSeenAsync(skillId);
-            }
+            UnitTitle = learning.Catalog.Modules.SelectMany(m => m.Units).FirstOrDefault(u => u.Id == _skill.UnitId)?.Title ?? "";
+            ShowNotes = false;
 
             var snapshot = await learning.GetSnapshotAsync();
             var progress = snapshot.Skill(skillId);
             MasteryLabel = Labels.Mastery(progress.Level);
+            Level = progress.Level;
+            StartText = progress.Level >= MasteryLevel.Seen ? "Repetir lección" : "Empezar lección";
             MasteryHelp = Labels.MasteryHelp(progress.Level);
             ReviewText = progress.Review.IsScheduled ? Labels.RelativeDue(progress.Review.DueAt, learning.Clock.Now) : null;
 
@@ -90,7 +103,13 @@ public sealed partial class LessonViewModel(LearningService learning, INavigatio
         }, "No se pudo abrir la lección.");
     }
 
-    /// <summary>Práctica en orden pedagógico: predicción → guiado → independiente → aplicación → recuerdo.</summary>
+    /// <summary>Lección interactiva: tarjetas cortas, huecos, ordenar líneas, encontrar el error y ejercicios.</summary>
+    [RelayCommand]
+    private Task StartLessonAsync() => _skill?.Lesson is null
+        ? Task.CompletedTask
+        : navigation.GoToAsync(Routes.Activity, HomeViewModel.Params(new ActivityRequest(ActivityMode.Lesson, [], Title: _skill.Title, LessonSkillId: _skill.Id)));
+
+    /// <summary>Práctica de código en orden de dificultad: guiado → independiente → aplicación, con predicción y errores.</summary>
     [RelayCommand]
     private Task PracticeAsync()
     {
@@ -105,6 +124,17 @@ public sealed partial class LessonViewModel(LearningService learning, INavigatio
         ids.AddRange(bug.Take(1));
         ids.AddRange([lesson.GuidedExerciseId, lesson.IndependentExerciseId, lesson.ApplicationExerciseId]);
         return navigation.GoToAsync(Routes.Activity, HomeViewModel.Params(new ActivityRequest(ActivityMode.Lesson, ids, Title: $"Práctica: {_skill.Title}")));
+    }
+
+    /// <summary>Muestra u oculta los apuntes completos. Consultarlos cuenta como lección vista.</summary>
+    [RelayCommand]
+    private async Task ToggleNotesAsync()
+    {
+        ShowNotes = !ShowNotes;
+        if (ShowNotes && _skill?.Lesson is not null)
+        {
+            await learning.MarkLessonSeenAsync(_skill.Id);
+        }
     }
 
     /// <summary>Preguntas de recuperación activa de la lección (útiles al día siguiente).</summary>

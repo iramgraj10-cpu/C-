@@ -17,6 +17,9 @@ public sealed record PlanBlockLine(string Label, string Minutes);
 
 public sealed record PendingAssessmentLine(Guid Id, string Title, string Progress);
 
+/// <summary>Un día de la semana en la tira de racha.</summary>
+public sealed record WeekDayLine(string Label, bool Active, bool IsToday);
+
 /// <summary>Inicio: retomar, repasos pendientes, nueva sesión con duración elegible y errores recurrentes.</summary>
 public sealed partial class HomeViewModel(
     LearningService learning,
@@ -24,6 +27,39 @@ public sealed partial class HomeViewModel(
     IDialogService dialogs) : ViewModelBase
 {
     private StudySession? _unfinished;
+
+    [ObservableProperty]
+    public partial int Streak { get; set; }
+
+    [ObservableProperty]
+    public partial int TotalXp { get; set; }
+
+    [ObservableProperty]
+    public partial int TodayXp { get; set; }
+
+    [ObservableProperty]
+    public partial int DailyGoal { get; set; } = GamificationService.DefaultGoal;
+
+    [ObservableProperty]
+    public partial double GoalProgress { get; set; }
+
+    [ObservableProperty]
+    public partial string GoalText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string StreakText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial bool PracticedToday { get; set; }
+
+    /// <summary>Título de la lección para «Continuar» (la primera no dominada de la ruta).</summary>
+    [ObservableProperty]
+    public partial string? NextLessonTitle { get; set; }
+
+    [ObservableProperty]
+    public partial string? NextLessonUnit { get; set; }
+
+    public ObservableCollection<WeekDayLine> Week { get; } = [];
 
     public IReadOnlyList<int> Presets { get; } = SessionPlanner.PresetMinutes;
 
@@ -123,7 +159,30 @@ public sealed partial class HomeViewModel(
                 ? "Si ya programas, puedes presentar la evaluación de una unidad desde Ruta para demostrar lo que sabes y avanzar más rápido."
                 : null;
 
+            var game = await learning.Gamification.GetStateAsync();
+            Streak = game.Streak;
+            TotalXp = game.TotalXp;
+            TodayXp = game.TodayXp;
+            DailyGoal = game.DailyGoal;
+            GoalProgress = game.GoalProgress;
+            PracticedToday = game.PracticedToday;
+            GoalText = game.GoalReached ? $"¡Meta cumplida! {game.TodayXp} XP hoy" : $"{game.TodayXp} / {game.DailyGoal} XP hoy";
+            StreakText = game.Streak == 0 ? "Empieza tu racha hoy"
+                : game.PracticedToday ? $"¡{game.Streak} {(game.Streak == 1 ? "día" : "días")} seguidos!"
+                : $"Racha de {game.Streak} {(game.Streak == 1 ? "día" : "días")}: practica hoy para no perderla";
+            var activeDays = new HashSet<DateOnly>(snapshot.Attempts.Select(a => DateOnly.FromDateTime(a.At.ToLocalTime().DateTime)));
+            activeDays.UnionWith(game.LastWeek.Where(d => d.Xp > 0).Select(d => d.Day));
+            Week.Clear();
+            foreach (var day in game.LastWeek)
+            {
+                Week.Add(new WeekDayLine(Labels.WeekdayInitial(day.Day.DayOfWeek), activeDays.Contains(day.Day), day.Day == learning.Gamification.Today));
+            }
+
             await RefreshPlanAsync();
+            var next = new SessionPlanner(learning.Catalog).ChooseFocus(snapshot);
+            NextLessonTitle = next?.Title;
+            NextLessonUnit = next is null ? null : learning.Catalog.Modules.SelectMany(m => m.Units).FirstOrDefault(u => u.Id == next.UnitId)?.Title;
+            _nextLessonId = next?.Id;
         }, "No se pudo cargar el inicio.");
         return hasProfile;
     }
@@ -223,6 +282,14 @@ public sealed partial class HomeViewModel(
             await navigation.GoToAsync(Routes.Lesson, new Dictionary<string, object> { [Routes.SkillParameter] = FocusSkillId });
         }
     }
+
+    private string? _nextLessonId;
+
+    /// <summary>Empieza la siguiente lección interactiva de la ruta.</summary>
+    [RelayCommand]
+    private Task StartNextLessonAsync() => _nextLessonId is null
+        ? navigation.GoToAsync(Routes.Curriculum)
+        : navigation.GoToAsync(Routes.Activity, Params(new ActivityRequest(ActivityMode.Lesson, [], LessonSkillId: _nextLessonId)));
 
     [RelayCommand]
     private Task ResumeAssessmentAsync(PendingAssessmentLine line) =>

@@ -33,6 +33,7 @@ public sealed partial class ChoiceItemViewModel : ItemViewModel
     {
         _item = item;
         Options = item.Options.Select((o, i) => new ChoiceOptionViewModel(i, o)).ToList();
+        UpdateFooter();
     }
 
     public IReadOnlyList<ChoiceOptionViewModel> Options { get; }
@@ -59,6 +60,18 @@ public sealed partial class ChoiceItemViewModel : ItemViewModel
     }
 
     private bool CanSubmit() => Selected is not null && !IsSolved && !(Settings.IsAssessment && HasSubmitted);
+
+    protected override bool CanSubmitNow => CanSubmit();
+
+    protected override Task SubmitNowAsync() => SubmitCommand.ExecuteAsync(null);
+
+    protected override bool OffersAnswer => true;
+
+    protected override Task OnBannerLinkAsync()
+    {
+        RevealAnswer();
+        return Task.CompletedTask;
+    }
 
     [RelayCommand(CanExecute = nameof(CanSubmit))]
     private async Task SubmitAsync()
@@ -93,7 +106,7 @@ public sealed partial class ChoiceItemViewModel : ItemViewModel
             return;
         }
 
-        Feedback = check.Correct ? $"Correcto. {check.Feedback}" : $"No es correcto. {check.Feedback}";
+        Feedback = check.Correct ? WithoutCorrectPrefix(check.Feedback) : check.Feedback;
         FeedbackPositive = check.Correct;
         if (check.Correct)
         {
@@ -108,6 +121,19 @@ public sealed partial class ChoiceItemViewModel : ItemViewModel
         {
             Selected.RevealedCorrect = false;
         }
+    }
+
+    /// <summary>La franja ya dice «¡Correcto!»; se quita la repetición al inicio de la retroalimentación.</summary>
+    private static string WithoutCorrectPrefix(string feedback)
+    {
+        var trimmed = feedback.Trim();
+        if (!trimmed.StartsWith("Correcto", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        var rest = trimmed["Correcto".Length..].TrimStart('.', ':', ',', ';', ' ');
+        return rest.Length == 0 ? "" : char.ToUpper(rest[0]) + rest[1..];
     }
 
     /// <summary>Tras fallar se puede pedir la explicación completa (después de reintentar o usar pistas).</summary>
@@ -131,7 +157,11 @@ public sealed partial class ShortAnswerItemViewModel : ItemViewModel
     private readonly ShortAnswerItem _item;
 
     public ShortAnswerItemViewModel(ShortAnswerItem item, ItemSettings settings, Func<AttemptRecord, Task<AttemptOutcome?>> record, Func<DateTimeOffset> now)
-        : base(item, settings, record, now) => _item = item;
+        : base(item, settings, record, now)
+    {
+        _item = item;
+        UpdateFooter();
+    }
 
     public bool IsMultiline => _item.Match == AnswerMatch.Output;
 
@@ -149,6 +179,18 @@ public sealed partial class ShortAnswerItemViewModel : ItemViewModel
     public partial string Answer { get; set; } = "";
 
     private bool CanSubmit() => !string.IsNullOrWhiteSpace(Answer) && !IsSolved && !(Settings.IsAssessment && HasSubmitted);
+
+    protected override bool CanSubmitNow => CanSubmit();
+
+    protected override Task SubmitNowAsync() => SubmitCommand.ExecuteAsync(null);
+
+    protected override bool OffersAnswer => true;
+
+    protected override Task OnBannerLinkAsync()
+    {
+        RevealAnswer();
+        return Task.CompletedTask;
+    }
 
     [RelayCommand(CanExecute = nameof(CanSubmit))]
     private async Task SubmitAsync()
@@ -171,7 +213,7 @@ public sealed partial class ShortAnswerItemViewModel : ItemViewModel
         }
         else if (check.Correct)
         {
-            Feedback = Tries == 1 ? "Correcto." : "Correcto en este reintento. El primer intento quedó registrado como fallido para programar más práctica.";
+            Feedback = Tries == 1 ? "" : "Lo lograste en este reintento. El primer intento quedó registrado como fallido para programar más práctica.";
             FeedbackPositive = true;
             IsSolved = true;
             ShowExplanation = true;
